@@ -106,8 +106,37 @@ protected:
         return e;
     }
 
+#endif
+
+
+#if defined(WIN32) || defined(_WIN32)
+
+    bool forceCreateDirectory(const std::wstring &dirname) const
+    {
+        return umba::filesys::createDirectoryEx(dirname, true);
+    }
+
+    bool forceCreateDirectory(const std::string &dirname) const
+    {
+        return forceCreateDirectory(decodeFilename(dirname));
+    }
+
+#else // Generic POSIX - Linups etc
+
+    // В линупсе всё работает через char* API - используем его как основное
+
+    bool forceCreateDirectory(const std::wstring &dirname) const
+    {
+        return forceCreateDirectory(encodeFilename(dirname));
+    }
+
+    bool forceCreateDirectory(const std::string &dirname) const
+    {
+        return umba::filesys::createDirectoryEx(dirname, true);
+    }
 
 #endif
+
 
     template<typename StringType>
     StringType normalizeFilenameImpl(const StringType &fname) const
@@ -286,7 +315,7 @@ protected:
     }
 
     template<typename StringType>
-    ErrorCode writeTextFile(StringType fName, const std::string &fText, WriteFileFlags writeFlags) const
+    ErrorCode writeTextFileImpl(StringType fName, const std::string &fText, WriteFileFlags writeFlags) const
     {
         fName = normalizeFilenameImpl(fName);
 
@@ -302,7 +331,13 @@ protected:
             return err;
         }
 
-        bool fOverwrite = ((writeFlags&WriteFileFlags::forceOverwrite)==0) ? true : false;
+        if ((writeFlags&WriteFileFlags::forceCreateDir)!=0)
+        {
+            auto path = umba::filename::getPath(nativePath);
+            forceCreateDirectory(path);
+        }
+
+        bool fOverwrite = (writeFlags&WriteFileFlags::forceOverwrite)!=0;
 
         if (!umba::filesys::writeFile(nativePath, fText.data(), fText.size(), fOverwrite))
         {
@@ -313,13 +348,13 @@ protected:
     }
 
     template<typename StringType>
-    ErrorCode writeTextFile(StringType fName, const std::wstring &fText, WriteFileFlags writeFlags) const
+    ErrorCode writeTextFileImpl(StringType fName, const std::wstring &fText, WriteFileFlags writeFlags) const
     {
-        return writeTextFile(fName, encodeText(fText), writeFlags);
+        return writeTextFileImpl(fName, encodeText(fText), writeFlags);
     }
 
     template<typename StringType>
-    ErrorCode writeDataFile(StringType fName, const std::vector<std::uint8_t> &fData, WriteFileFlags writeFlags) const
+    ErrorCode writeDataFileImpl(StringType fName, const std::vector<std::uint8_t> &fData, WriteFileFlags writeFlags) const
     {
         fName = normalizeFilenameImpl(fName);
 
@@ -335,7 +370,13 @@ protected:
             return err;
         }
 
-        bool fOverwrite = ((writeFlags&WriteFileFlags::forceOverwrite)==0) ? true : false;
+        if ((writeFlags&WriteFileFlags::forceCreateDir)!=0)
+        {
+            auto path = umba::filename::getPath(nativePath);
+            forceCreateDirectory(path);
+        }
+
+        bool fOverwrite = (writeFlags&WriteFileFlags::forceOverwrite)!=0;
 
         if (fData.empty())
         {
@@ -492,33 +533,33 @@ public:
 
     ErrorCode writeTextFile(const std::string  &fName, const std::string  &fText, WriteFileFlags writeFlags) const override
     {
-        return writeTextFile(fName, fText, writeFlags);
+        return writeTextFileImpl(fName, fText, writeFlags);
     }
 
     ErrorCode writeTextFile(const std::string  &fName, const std::wstring &fText, WriteFileFlags writeFlags) const override
     {
-        return writeTextFile(fName, fText, writeFlags);
+        return writeTextFileImpl(fName, fText, writeFlags);
     }
 
     ErrorCode writeTextFile(const std::wstring &fName, const std::string  &fText, WriteFileFlags writeFlags) const override
     {
-        return writeTextFile(fName, fText, writeFlags);
+        return writeTextFileImpl(fName, fText, writeFlags);
     }
 
     ErrorCode writeTextFile(const std::wstring &fName, const std::wstring &fText, WriteFileFlags writeFlags) const override
     {
-        return writeTextFile(fName, fText, writeFlags);
+        return writeTextFileImpl(fName, fText, writeFlags);
     }
 
 
     ErrorCode writeDataFile(const std::string  &fName, const std::vector<std::uint8_t> &fData, WriteFileFlags writeFlags) const override
     {
-        return writeDataFile(fName, fData, writeFlags);
+        return writeDataFileImpl(fName, fData, writeFlags);
     }
 
     ErrorCode writeDataFile(const std::wstring &fName, const std::vector<std::uint8_t> &fData, WriteFileFlags writeFlags) const override
     {
-        return writeDataFile(fName, fData, writeFlags);
+        return writeDataFileImpl(fName, fData, writeFlags);
     }
 
 
