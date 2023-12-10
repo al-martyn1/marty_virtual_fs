@@ -1,5 +1,5 @@
 /*! \file
-    \brief File name and data encoder interface
+    \brief File data (text) encoder interface
 */
 
 #pragma once
@@ -17,7 +17,7 @@
 namespace marty_virtual_fs {
 
 
-struct FileDataEncoderImpl : : public IFileDataEncoder
+struct FileDataEncoderImpl : public IFileDataEncoder
 {
 
 private: // ибо нехрен
@@ -37,24 +37,39 @@ public:
 
     // Перекодировка текстовых данных - wide <-> single(multi)-byte
 
-    virtual bool setFileTextEncoding(const std::string &encName) override
+    virtual bool setTextEncoding(const std::string &encName) override
     {
         return textEncoder.setEncoding(encName);
     }
 
-    virtual std::string getFileTextEncoding() const override
+    virtual std::string getTextEncoding() const override
     {
         return textEncoder.getEncoding();
     }
 
-    virtual std::string  encodeFileText( const std::wstring &str ) const override
+    virtual std::wstring autoDecodeText( const std::string  &str ) const override
+    {
+        return textEncoder.autoDecodeText(str);
+    }
+
+    virtual std::string  encodeText( const std::wstring &str ) const override
     {
         return textEncoder.encodeText(str);
     }
 
-    virtual std::wstring decodeFileText( const std::string  &str ) const override
+    virtual std::string  encodeText( const std::string &str ) const override
     {
-        textEncoder.decodeText();
+        return str;
+    }
+
+    virtual std::wstring decodeText( const std::string  &str ) const override
+    {
+        return textEncoder.decodeText(str);
+    }
+
+    virtual std::wstring decodeText( const std::wstring &str ) const override
+    {
+        return str;
     }
 
 

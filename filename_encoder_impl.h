@@ -1,5 +1,5 @@
 /*! \file
-    \brief File name and data encoder interface
+    \brief File names encoder interface
 */
 
 #pragma once
@@ -50,9 +50,19 @@ public:
         return filenameEncoder.encodeText(str);
     }
 
+    virtual std::string  encodeFilename( const std::string &str ) const override
+    {
+        return str;
+    }
+
     virtual std::wstring decodeFilename( const std::string  &str ) const override
     {
-        filenameEncoder.decodeText();
+        return filenameEncoder.decodeText(str);
+    }
+
+    virtual std::wstring decodeFilename( const std::wstring &str ) const override
+    {
+        return str;
     }
 
 

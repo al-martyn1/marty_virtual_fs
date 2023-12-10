@@ -31,6 +31,9 @@ struct IAppPaths
     virtual bool getAppExeName(std::string  &p) const = 0;
     virtual bool getAppExeName(std::wstring &p) const = 0;
 
+    virtual bool getAppExePath(std::string  &p) const = 0;
+    virtual bool getAppExePath(std::wstring &p) const = 0;
+
     virtual bool getAppBinRootPath(std::string  &p) const = 0;
     virtual bool getAppBinRootPath(std::wstring &p) const = 0;
 

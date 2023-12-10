@@ -27,6 +27,8 @@ struct IFilenameEncoder
     virtual std::string getFilenameEncoding() const = 0;
 
     virtual std::string  encodeFilename( const std::wstring &str ) const = 0;
+    virtual std::string  encodeFilename( const std::string  &str ) const = 0;
+    virtual std::wstring decodeFilename( const std::wstring &str ) const = 0;
     virtual std::wstring decodeFilename( const std::string  &str ) const = 0;
 
 }; // struct IFilenameEncoder

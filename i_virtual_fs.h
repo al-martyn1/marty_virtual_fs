@@ -39,17 +39,28 @@ struct IVirtualFs
 {
     virtual ~IVirtualFs() {}
 
+    virtual ErrorCode clearMounts( ) = 0;
 
-    ErrorCode addMountPoint( const std::string  &mntPointName, const std::string  &mntPointTarget ) const = 0;
-    ErrorCode addMountPoint( const std::wstring &mntPointName, const std::wstring &mntPointTarget ) const = 0;
+    virtual ErrorCode removeMountPoint( const std::string  &mntPointName ) = 0;
+    virtual ErrorCode removeMountPoint( const std::wstring &mntPointName ) = 0;
+
+    virtual ErrorCode addMountPoint( const std::string  &mntPointName, const std::string  &mntPointTarget ) = 0;
+    virtual ErrorCode addMountPoint( const std::wstring &mntPointName, const std::wstring &mntPointTarget ) = 0;
 
     // Only FileTypeFlags::directory flag allowed
-    ErrorCode addMountPointEx( const std::string  &mntPointName, const std::string  &mntPointTarget, FileTypeFlags flags ) const = 0;
-    ErrorCode addMountPointEx( const std::wstring &mntPointName, const std::wstring &mntPointTarget, FileTypeFlags flags ) const = 0;
+    virtual ErrorCode addMountPointEx( const std::string  &mntPointName, const std::string  &mntPointTarget, FileTypeFlags flags ) = 0;
+    virtual ErrorCode addMountPointEx( const std::wstring &mntPointName, const std::wstring &mntPointTarget, FileTypeFlags flags ) = 0;
+
+    virtual ErrorCode mapVirtualPath( const std::string  &vPath, std::string  &realPath) const = 0;
+    virtual ErrorCode mapVirtualPath( const std::wstring &vPath, std::wstring &realPath) const = 0;
+
+    virtual ErrorCode virtualizeRealPath( const std::string  &realPath, std::string  &vPath) const = 0;
+    virtual ErrorCode virtualizeRealPath( const std::wstring &realPath, std::wstring &vPath) const = 0;
+
 
     // Предыдущие удаляются. Это надо делать один раз при создании объекта, и при подключении/отключении съёмных носителей
     // Сами объекты IFileSystem/IVirtualFs не следят за событиями подключения/отключения съёмных носителей
-    ErrorCode createMachineFilesystemMountPoints() const = 0;
+    virtual ErrorCode createMachineFilesystemMountPoints() = 0;
 
 
 }; // struct IVirtualFs

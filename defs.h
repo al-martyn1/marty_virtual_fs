@@ -1,5 +1,5 @@
 /*! \file
-    \brief File system interface
+    \brief Virtual Filesystem definitions
 */
 
 #pragma once

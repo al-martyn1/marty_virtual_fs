@@ -34,11 +34,15 @@ struct IFileDataEncoder
 
 
     // Перекодировка текстовых данных - wide <-> single(multi)-byte
-    virtual bool setFilenameEncoding(const std::string &encName) = 0;
-    virtual std::string getFilenameEncoding() const = 0;
+    virtual bool setTextEncoding(const std::string &encName) = 0;
+    virtual std::string getTextEncoding() const = 0;
 
-    virtual std::string  encodeFilename( const std::wstring &str ) const = 0;
-    virtual std::wstring decodeFilename( const std::string  &str ) const = 0;
+    virtual std::wstring autoDecodeText( const std::string  &str ) const = 0;
+
+    virtual std::string  encodeText( const std::wstring &str ) const = 0;
+    virtual std::string  encodeText( const std::string  &str ) const = 0;
+    virtual std::wstring decodeText( const std::wstring &str ) const = 0;
+    virtual std::wstring decodeText( const std::string  &str ) const = 0;
 
 }; // struct IFileDataEncoder
 

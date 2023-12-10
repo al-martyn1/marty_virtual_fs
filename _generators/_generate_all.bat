@@ -33,7 +33,7 @@
 @set FILETYPEFLAGS_DEF=invalid=-1;normalFile=0;directory=1;deviceFile=2
 
 @set ERRORCODE_GEN_FLAGS=--enum-flags=0 --enum-flags=type-decl,serialize,deserialize,lowercase,enum-class,fmt-hex %VALUES_CAMEL% %SERIALIZE_PASCAL%
-@set ERRORCODE_DEF=invalid,unknown=-1;ok=0;genericError=1;notFound=2;notExist=3;alreadyExist=4;accessDenied=5;invalidName=6
+@set ERRORCODE_DEF=invalid,unknown=-1;ok=0;genericError=1;notFound=2;notExist=3;alreadyExist=4;accessDenied=5;invalidName;notSupported;invalidMountPoint;invalidMountTarget;notDirectory
 
 @set WRITEFILEFLAGS_GEN_FLAGS=       --enum-flags=0 --enum-flags=type-decl,serialize,deserialize,lowercase,enum-class,flags,fmt-hex %VALUES_CAMEL% %SERIALIZE_PASCAL% %FLAGENUM_EXTRA%
 @set WRITEFILEFLAGS_DEF=invalid,unknown=-1;none,normal=0;forceCreateDir=1;forceOverwrite=2

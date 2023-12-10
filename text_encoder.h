@@ -37,8 +37,7 @@ public:
     TextEncoder& operator=(TextEncoder &&)      = default;
 
 
-
-    virtual bool setEncoding(const std::string &eName) override
+    bool setEncoding(const std::string &eName)
     {
         encoding::EncodingsApi* pApi = encoding::getEncodingsApi();
         unsigned cp = pApi->getCodePageByName(eName);
@@ -53,21 +52,49 @@ public:
         return true;
     }
 
-    virtual std::string getEncoding() const override
+    std::string getEncoding() const
     {
         return encName;
     }
 
-    virtual std::string  encodeText( const std::wstring &str ) const override
+    std::string  encodeText( const std::wstring &str ) const
     {
         encoding::EncodingsApi* pApi = encoding::getEncodingsApi();
         return pApi->encode(str, encCodepageId);
     }
 
-    virtual std::wstring decodeText( const std::string  &str ) const override
+    std::string  encodeText( const std::string &str ) const
+    {
+        return str;
+    }
+
+    std::wstring decodeText( const std::string  &str ) const
     {
         encoding::EncodingsApi* pApi = encoding::getEncodingsApi();
         return pApi->decode(str, encCodepageId);
+    }
+
+    std::wstring decodeText( const std::wstring  &str ) const
+    {
+        return str;
+    }
+
+    std::wstring autoDecodeText(std::string str) const
+    {
+        encoding::EncodingsApi* pApi = encoding::getEncodingsApi();
+
+        size_t bomSize = 0;
+        std::string detectRes = pApi->detect( str, bomSize );
+
+        if (bomSize)
+            str.erase(0,bomSize);
+
+        auto cpId = pApi->getCodePageByName(detectRes);
+
+        // return 
+        //pApi->convert( str, cpId, encCodepageId /* encoding::EncodingsApi::cpid_UTF8 */ );
+
+        return pApi->decode(str, cpId);
     }
 
 
