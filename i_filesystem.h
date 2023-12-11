@@ -30,6 +30,10 @@ struct IFileSystem
     virtual std::string  normalizeFilename(const std::string  &fname) const = 0;
     virtual std::wstring normalizeFilename(const std::wstring &fname) const = 0;
 
+    virtual void getErrorCodeString(ErrorCode e, std::string  &errStr) const = 0;
+    virtual void getErrorCodeString(ErrorCode e, std::wstring &errStr) const = 0;
+
+
     // Конвертация в/из нативных путей. Если путь вне вирт системы - ErrorCode::notFound. 
     // Если текущая ф. система не поддерживает конвертацию в нативное имя - ErrorCode::notSupported
     virtual ErrorCode fromNativePathName(const std::string  &nativeName, std::string  &vfsName) const = 0;

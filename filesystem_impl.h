@@ -111,6 +111,8 @@ protected:
 
 #if defined(WIN32) || defined(_WIN32)
 
+    // Под виндой юникодное апи первично
+
     bool forceCreateDirectory(const std::wstring &dirname) const
     {
         return umba::filesys::createDirectoryEx(dirname, true);
@@ -118,6 +120,7 @@ protected:
 
     bool forceCreateDirectory(const std::string &dirname) const
     {
+        // перекодируем локальным местечковым энкодером в юникодное имя
         return forceCreateDirectory(decodeFilename(dirname));
     }
 
@@ -317,6 +320,11 @@ protected:
     template<typename StringType>
     ErrorCode writeTextFileImpl(StringType fName, const std::string &fText, WriteFileFlags writeFlags) const
     {
+        if (getVfsGlobalReadonly())
+        {
+            return ErrorCode::accessDenied;
+        }
+
         fName = normalizeFilenameImpl(fName);
 
         if (isVirtualRoot(fName))
@@ -356,6 +364,11 @@ protected:
     template<typename StringType>
     ErrorCode writeDataFileImpl(StringType fName, const std::vector<std::uint8_t> &fData, WriteFileFlags writeFlags) const
     {
+        if (getVfsGlobalReadonly())
+        {
+            return ErrorCode::accessDenied;
+        }
+
         fName = normalizeFilenameImpl(fName);
 
         if (isVirtualRoot(fName))
@@ -412,6 +425,19 @@ public:
     std::wstring normalizeFilename(const std::wstring &fname) const override
     {
         return normalizeFilenameImpl(fname);
+    }
+
+
+    virtual void getErrorCodeString(ErrorCode e, std::string  &errStr) const override
+    {
+        errStr = enum_serialize(e);
+    }
+
+    virtual void getErrorCodeString(ErrorCode e, std::wstring &errStr) const override
+    {
+        std::string str;
+        str = enum_serialize(e);
+        errStr = decodeFilename(str); // Тут на кодировку ваще пофиг, всё равно только латиница
     }
 
 

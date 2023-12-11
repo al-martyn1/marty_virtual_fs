@@ -133,6 +133,30 @@ protected:
 
 public:
 
+    // virtual bool getAppExeName(std::string  &p) const = 0;
+    // virtual bool getAppExeName(std::wstring &p) const = 0;
+
+    void getAppName(std::string &a) const override
+    {
+        AppPathsCommonImpl::getAppName(a);
+
+        if (a.empty())
+        {
+            getAppExeName(a);
+        }
+    }
+
+    void getAppName(std::wstring &a) const override
+    {
+        AppPathsCommonImpl::getAppName(a);
+
+        if (a.empty())
+        {
+            getAppExeName(a);
+        }
+    }
+
+
     virtual bool getAppHomePathEx(std::string  &p, bool bCreateFolder) const override
     {
         return getAppHomePathExImpl(p, bCreateFolder);

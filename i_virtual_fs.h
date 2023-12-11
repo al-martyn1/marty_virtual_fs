@@ -39,6 +39,10 @@ struct IVirtualFs
 {
     virtual ~IVirtualFs() {}
 
+
+    virtual void setVfsGlobalReadonly(bool bReadonly) = 0;
+    virtual bool getVfsGlobalReadonly() const = 0;
+
     virtual ErrorCode clearMounts( ) = 0;
 
     virtual ErrorCode removeMountPoint( const std::string  &mntPointName ) = 0;

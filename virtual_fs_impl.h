@@ -24,6 +24,8 @@ class VirtualFsImpl : public         IVirtualFs
 
 protected:
 
+    bool        m_readOnly = false;
+
 public:
 
     VirtualFsImpl()                                 = default;
@@ -261,6 +263,18 @@ protected:
 
 
 public:
+
+    //bool        m_readOnly = false;
+    virtual void setVfsGlobalReadonly(bool bReadonly) override
+    {
+        m_readOnly = bReadonly;
+    }
+
+    virtual bool getVfsGlobalReadonly() const override
+    {
+        return m_readOnly;
+    }
+
 
     virtual ErrorCode clearMounts( ) override
     {
