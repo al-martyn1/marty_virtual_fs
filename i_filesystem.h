@@ -27,11 +27,50 @@ struct IFileSystem
     // Нормализует виртуальное имя файла, нормализует разделители пути, и схлопывает спец пути типа "."/"..", 
     // чтобы мамкины "хакеры" из скрипта не могли вылезти за пределы песочницы
     // Выставляем наружу, чтобы в скрипте можно было проверить, как выглядит путь, который будет реально использоваться
-    virtual std::string  normalizeFilename(const std::string  &fname) const = 0;
-    virtual std::wstring normalizeFilename(const std::wstring &fname) const = 0;
 
-    virtual void getErrorCodeString(ErrorCode e, std::string  &errStr) const = 0;
-    virtual void getErrorCodeString(ErrorCode e, std::wstring &errStr) const = 0;
+    virtual std::string  normalizeFilename(const std::string  &fname) const = 0; // static
+    virtual std::wstring normalizeFilename(const std::wstring &fname) const = 0; // static
+
+    // Возвращает текстовую строку, соответствующую коду ошибки
+    virtual void getErrorCodeString(ErrorCode e, std::string  &errStr) const = 0; // static
+    virtual void getErrorCodeString(ErrorCode e, std::wstring &errStr) const = 0; // static
+
+
+    // "Статические" методы для извлечения частей пути
+    // Возвращаемые значения (в основном это касается путей) будут "нормализованы"
+
+    //! Возвращает путь
+    virtual std::string  getPath(const std::string  &fullName) const = 0; // static
+    virtual std::wstring getPath(const std::wstring &fullName) const = 0; // static
+
+    //! Возвращает имя и расширение
+    virtual std::string  getFileName(const std::string  &fullName) const = 0; // static
+    virtual std::wstring getFileName(const std::wstring &fullName) const = 0; // static
+
+    //! Возвращает путь и имя
+    virtual std::string  getPathFile(const std::string  &fullName) const = 0; // static
+    virtual std::wstring getPathFile(const std::wstring &fullName) const = 0; // static
+
+    //! Возвращает расширение
+    virtual std::string  getExt(const std::string  &fullName) const = 0; // static
+    virtual std::wstring getExt(const std::wstring &fullName) const = 0; // static
+
+    //! Возвращает имя файла без пути и расширения
+    virtual std::string  getName(const std::string  &fullName) const = 0; // static
+    virtual std::wstring getName(const std::wstring &fullName) const = 0; // static
+
+    //! Конкатенация путей
+    virtual std::string  appendPath(const std::string  &pathAppendTo, const std::string  &appendPath) const = 0; // static
+    virtual std::wstring appendPath(const std::wstring &pathAppendTo, const std::wstring &appendPath) const = 0; // static
+
+    //! Добавление расширения
+    virtual std::string  appendExt(const std::string  &nameAppendTo, const std::string  &appendExt) const = 0; // static
+    virtual std::wstring appendExt(const std::wstring &nameAppendTo, const std::wstring &appendExt) const = 0; // static
+
+
+    //appendPath( const StringType &p, const StringType &f, typename StringType::value_type pathSep )
+    //StringType appendExt( const StringType &n, const StringType &e, typename StringType::value_type extSep = getNativeExtSep<typename StringType::value_type>() )
+
 
 
     // Конвертация в/из нативных путей. Если путь вне вирт системы - ErrorCode::notFound. 
