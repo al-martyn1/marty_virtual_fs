@@ -256,13 +256,183 @@ protected:
 
     }
 
+
+    template<typename StringType>
+    StringType normalizeFilenameImpl(StringType fname) const
+    {
+        typedef typename StringType::value_type CharType;
+
+        // Хвостовой слэш не должен нас путать, но только если он не единственный символ, а то скушаем корневой слэш
+        if (fname.size()>1)
+        {
+            umba::filename::stripLastPathSep(fname);
+        }
+
+        return umba::filename::makeCanonicalSimple(fname, StringType(1, (CharType)'.'), StringType(2, (CharType)'.'), (CharType)'/');
+    }
+
         // MountPointInfo mntInfo;
         // mntInfo.name   = mntPointName;
         // mntInfo.target = prepareMountTarget(mntPointTarget);
         // mntInfo.flags  = flags;
 
+    //! Возвращает путь
+    template<typename StringType>
+    StringType getPathImpl(StringType fullName) const
+    {
+        fullName = normalizeFilenameImpl(fullName);
+        return umba::filename::getPath(fullName);
+    }
+
+    //! Возвращает имя и расширение
+    template<typename StringType>
+    StringType getFileNameImpl(StringType fullName) const
+    {
+        fullName = normalizeFilenameImpl(fullName);
+        return umba::filename::getFileName(fullName);
+    }
+
+    //! Возвращает путь и имя
+    template<typename StringType>
+    StringType getPathFileImpl(StringType fullName) const
+    {
+        fullName = normalizeFilenameImpl(fullName);
+        return umba::filename::getPathFile(fullName);
+    }
+
+    //! Возвращает расширение
+    template<typename StringType>
+    StringType getExtImpl(StringType fullName) const
+    {
+        fullName = normalizeFilenameImpl(fullName);
+        return umba::filename::getExt(fullName);
+    }
+
+    //! Возвращает имя файла без пути и расширения
+    template<typename StringType>
+    StringType getNameImpl(StringType fullName) const
+    {
+        fullName = normalizeFilenameImpl(fullName);
+        return umba::filename::getName(fullName);
+    }
+
+    //! Конкатенация путей
+    template<typename StringType>
+    StringType appendPathImpl(StringType pathAppendTo, StringType appendPath) const
+    {
+        pathAppendTo = normalizeFilenameImpl(pathAppendTo);
+        appendPath   = normalizeFilenameImpl(appendPath);
+        return umba::filename::appendPath(pathAppendTo, appendPath, (typename StringType::value_type)'/');
+    }
+
+    //! Добавление расширения
+    template<typename StringType>
+    StringType appendExtImpl(StringType nameAppendTo, StringType appendExt) const
+    {
+        nameAppendTo = normalizeFilenameImpl(nameAppendTo);
+        appendExt    = normalizeFilenameImpl(appendExt);
+        return umba::filename::appendExt(nameAppendTo, appendExt, (typename StringType::value_type)'.');
+    }
 
 public:
+
+    // Нормализует виртуальное имя файла, нормализует разделители пути, и схлопывает спец пути типа "."/"..", 
+    // чтобы мамкины "хакеры" из скрипта не могли вылезти за пределы песочницы
+    // Выставляем наружу, чтобы в скрипте можно было проверить, как выглядит путь, который будет реально использоваться
+    std::string  normalizeFilename(const std::string  &fname) const override
+    {
+        return normalizeFilenameImpl(fname);
+    }
+
+    std::wstring normalizeFilename(const std::wstring &fname) const override
+    {
+        return normalizeFilenameImpl(fname);
+    }
+
+
+    //! Возвращает путь
+    virtual std::string  getPath(const std::string  &fullName) const override // static
+    {
+        return getPathImpl(fullName);
+    }
+
+    virtual std::wstring getPath(const std::wstring &fullName) const override // static
+    {
+        return getPathImpl(fullName);
+    }
+
+    //! Возвращает имя и расширение
+    virtual std::string  getFileName(const std::string  &fullName) const override // static
+    {
+        return getFileNameImpl(fullName);
+    }
+
+    virtual std::wstring getFileName(const std::wstring &fullName) const override // static
+    {
+        return getFileNameImpl(fullName);
+    }
+
+
+    //! Возвращает путь и имя
+    virtual std::string  getPathFile(const std::string  &fullName) const override // static
+    {
+        return getPathFileImpl(fullName);
+    }
+
+    virtual std::wstring getPathFile(const std::wstring &fullName) const override // static
+    {
+        return getPathFileImpl(fullName);
+    }
+
+
+    //! Возвращает расширение
+    virtual std::string  getExt(const std::string  &fullName) const override // static
+    {
+        return getExtImpl(fullName);
+    }
+
+    virtual std::wstring getExt(const std::wstring &fullName) const override // static
+    {
+        return getExtImpl(fullName);
+    }
+
+
+    //! Возвращает имя файла без пути и расширения
+    virtual std::string  getName(const std::string  &fullName) const override // static
+    {
+        return getNameImpl(fullName);
+    }
+
+    virtual std::wstring getName(const std::wstring &fullName) const override // static
+    {
+        return getNameImpl(fullName);
+    }
+
+
+    //! Конкатенация путей
+    virtual std::string  appendPath(const std::string  &pathAppendTo, const std::string  &appendPath) const override // static
+    {
+        return appendPathImpl(pathAppendTo, appendPath);
+    }
+
+    virtual std::wstring appendPath(const std::wstring &pathAppendTo, const std::wstring &appendPath) const override // static
+    {
+        return appendPathImpl(pathAppendTo, appendPath);
+    }
+
+
+    //! Добавление расширения
+    virtual std::string  appendExt(const std::string  &nameAppendTo, const std::string  &appendExt) const override // static
+    {
+        return appendPathImpl(nameAppendTo, appendExt);
+    }
+
+    virtual std::wstring appendExt(const std::wstring &nameAppendTo, const std::wstring &appendExt) const override // static
+    {
+        return appendPathImpl(nameAppendTo, appendExt);
+    }
+
+
 
     //bool        m_readOnly = false;
     virtual void setVfsGlobalReadonly(bool bReadonly) override

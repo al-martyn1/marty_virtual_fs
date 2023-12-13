@@ -68,11 +68,6 @@ struct IFileSystem
     virtual std::wstring appendExt(const std::wstring &nameAppendTo, const std::wstring &appendExt) const = 0; // static
 
 
-    //appendPath( const StringType &p, const StringType &f, typename StringType::value_type pathSep )
-    //StringType appendExt( const StringType &n, const StringType &e, typename StringType::value_type extSep = getNativeExtSep<typename StringType::value_type>() )
-
-
-
     // Конвертация в/из нативных путей. Если путь вне вирт системы - ErrorCode::notFound. 
     // Если текущая ф. система не поддерживает конвертацию в нативное имя - ErrorCode::notSupported
     virtual ErrorCode fromNativePathName(const std::string  &nativeName, std::string  &vfsName) const = 0;
@@ -87,6 +82,17 @@ struct IFileSystem
 
     virtual std::vector<DirectoryEntryInfoA> enumerateDirectory(const std::string  &dirPath, ErrorCode *pErr = 0) const = 0;
     virtual std::vector<DirectoryEntryInfoW> enumerateDirectory(const std::wstring &dirPath, ErrorCode *pErr = 0) const = 0;
+
+
+    // std::string formatFiletime<std::string>( filetime_t t, const std::string &fmt )
+    // Описание форматной строки тут - https://man7.org/linux/man-pages/man3/strftime.3.html
+    virtual std::string  formatFiletime(FileTime ft, const std::string  &fmt) const = 0;
+    virtual std::wstring formatFiletime(FileTime ft, const std::wstring &fmt) const = 0;
+
+
+    virtual std::uint32_t getFileSizeLo(FileSize sz) const = 0;
+    virtual std::uint32_t getFileSizeHi(FileSize sz) const = 0;
+
 
     virtual bool isFileExistAndReadable(const std::string  &fName) const = 0;
     virtual bool isFileExistAndReadable(const std::wstring &fName) const = 0;

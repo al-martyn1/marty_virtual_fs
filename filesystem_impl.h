@@ -40,107 +40,6 @@ public:
 protected:
 
 
-#if defined(WIN32) || defined(_WIN32)
-
-    template<typename StringType>
-    ErrorCode enumerateNativeDirectoryImpl(const StringType &path, std::vector< DirectoryEntryInfoT<StringType> > &entries) const
-    {
-        if (!umba::filesys::enumerateDirectory( path
-                                              , [&](const StringType &name, bool isDir)
-                                                {
-                                                    DirectoryEntryInfoT<StringType> e;
-                                                    e.entryName     = name;
-                                                    e.fileTypeFlags = isDir ? FileTypeFlags::directory : FileTypeFlags::normalFile;
-                                                    entries.emplace_back(e);
-                                                    return true;
-                                                }
-                                              )
-           )
-        {
-            return ErrorCode::genericError;
-        }
-
-        return ErrorCode::ok;
-    }
-
-#else // Generic POSIX - Linups etc
-
-    ErrorCode enumerateNativeDirectoryImpl(const std::string &path, std::vector< DirectoryEntryInfoA > &entries) const
-    {
-        if (!umba::filesys::enumerateDirectory( path
-                                              , [&](const std::string &name, bool isDir)
-                                                {
-                                                    DirectoryEntryInfo<StringType> e;
-                                                    e.entryName     = name;
-                                                    e.fileTypeFlags = isDir ? FileTypeFlags::directory : FileTypeFlags::normalFile;
-                                                    entries.emplace_back(e);
-                                                    return true;
-                                                }
-                                              )
-           )
-        {
-            return ErrorCode::genericError;
-        }
-
-        return ErrorCode::ok;
-    
-    }
-
-    ErrorCode enumerateNativeDirectoryImpl(const std::wstring &path, std::vector< DirectoryEntryInfoW > &entries) const
-    {
-        std::vector< DirectoryEntryInfoA > entriesA;
-        ErrorCode e = enumerateNativeDirectoryImpl(decodeFilename(path), entriesA);
-        if (e!=ErrorCode::ok)
-        {
-            return e;
-        }
-
-        for(const auto& ea: entriesA)
-        {
-            DirectoryEntryInfoW ew;
-            ew.entryName     = encodeFilename(ea.entryName);
-            ew.fileTypeFlags = ea.fileTypeFlags;
-            entries.emplace_back(ew);
-        }
-
-        return e;
-    }
-
-#endif
-
-
-#if defined(WIN32) || defined(_WIN32)
-
-    // Под виндой юникодное апи первично
-
-    bool forceCreateDirectory(const std::wstring &dirname) const
-    {
-        return umba::filesys::createDirectoryEx(dirname, true);
-    }
-
-    bool forceCreateDirectory(const std::string &dirname) const
-    {
-        // перекодируем локальным местечковым энкодером в юникодное имя
-        return forceCreateDirectory(decodeFilename(dirname));
-    }
-
-#else // Generic POSIX - Linups etc
-
-    // В линупсе всё работает через char* API - используем его как основное
-
-    bool forceCreateDirectory(const std::wstring &dirname) const
-    {
-        return forceCreateDirectory(encodeFilename(dirname));
-    }
-
-    bool forceCreateDirectory(const std::string &dirname) const
-    {
-        return umba::filesys::createDirectoryEx(dirname, true);
-    }
-
-#endif
-
-
     template<typename StringType>
     StringType normalizeFilenameImpl(StringType fname) const
     {
@@ -175,89 +74,9 @@ protected:
         return false;
     }
 
-    template<typename StringType>
-    ErrorCode enumerateDirectoryImpl(StringType dirPath, std::vector< DirectoryEntryInfoT<StringType> > &entries) const
-    {
-        entries.clear();
-
-        dirPath = normalizeFilenameImpl(dirPath);
-
-        if (isVirtualRoot(dirPath)) // Корень
-        {
-            // Перечисляем mount points
-
-            std::map<std::wstring, MountPointInfo>::const_iterator mit = m_mountPoints.begin();
-            for(; mit!=m_mountPoints.end(); ++mit)
-            {
-                DirectoryEntryInfoT<StringType> dirEntryInfo;
-                dirEntryInfo.entryName     = filenameToStringType<StringType, std::wstring>(mit->second.name);
-                dirEntryInfo.fileTypeFlags = mit->second.flags;
-                entries.emplace_back(dirEntryInfo);
-            }
-
-            return ErrorCode::ok;
-
-        }
-
-        StringType nativePath;
-        ErrorCode err = toNativePathName(dirPath, nativePath);
-        if (err!=ErrorCode::ok)
-        {
-            return err;
-        }
-
-        if (!umba::filesys::isPathDirectory(nativePath))
-        {
-            return ErrorCode::notDirectory;
-        }
-
-        // enumerate native directory
-        return enumerateNativeDirectoryImpl(nativePath, entries);
-
-    }
 
     template<typename StringType>
-    bool isFileExistAndReadableImpl(StringType fName) const
-    {
-        fName = normalizeFilenameImpl(fName);
-
-        if (isVirtualRoot(fName))
-        {
-            return false;
-        }
-
-        StringType nativePath;
-        ErrorCode err = toNativePathName(fName, nativePath);
-        if (err!=ErrorCode::ok)
-        {
-            return false;
-        }
-
-        return umba::filesys::isFileReadable(nativePath);
-    }
-
-    template<typename StringType>
-    bool isDirectoryImpl(StringType dName) const
-    {
-        dName = normalizeFilenameImpl(dName);
-
-        if (isVirtualRoot(dName))
-        {
-            return true;
-        }
-
-        StringType nativePath;
-        ErrorCode err = toNativePathName(dName, nativePath);
-        if (err!=ErrorCode::ok)
-        {
-            return false;
-        }
-
-        return umba::filesys::isPathDirectory(nativePath);
-    }
-
-    template<typename StringType>
-    ErrorCode readDataFileImpl(StringType fName, std::vector<std::uint8_t> &fData) const
+    ErrorCode readDataFileImpl2(StringType fName, std::vector<std::uint8_t> &fData) const
     {
         fName = normalizeFilenameImpl(fName);
 
@@ -283,7 +102,7 @@ protected:
 
 
     template<typename StringType>
-    ErrorCode readTextFileImpl(StringType fName, std::wstring &fText) const
+    ErrorCode readTextFileImpl2(StringType fName, std::wstring &fText) const
     {
         fName = normalizeFilenameImpl(fName);
 
@@ -311,10 +130,10 @@ protected:
     }
 
     template<typename StringType>
-    ErrorCode readTextFileImpl(StringType fName, std::string &fText) const
+    ErrorCode readTextFileImpl2(StringType fName, std::string &fText) const
     {
         std::wstring wText;
-        ErrorCode e = readTextFileImpl(fName, wText);
+        ErrorCode e = readTextFileImpl2(fName, wText);
         if (e!=ErrorCode::ok)
         {
             return e;
@@ -326,7 +145,7 @@ protected:
     }
 
     template<typename StringType>
-    ErrorCode writeTextFileImpl(StringType fName, const std::string &fText, WriteFileFlags writeFlags) const
+    ErrorCode writeTextFileImpl2(StringType fName, const std::string &fText, WriteFileFlags writeFlags) const
     {
         if (getVfsGlobalReadonly())
         {
@@ -364,13 +183,13 @@ protected:
     }
 
     template<typename StringType>
-    ErrorCode writeTextFileImpl(StringType fName, const std::wstring &fText, WriteFileFlags writeFlags) const
+    ErrorCode writeTextFileImpl2(StringType fName, const std::wstring &fText, WriteFileFlags writeFlags) const
     {
         return writeTextFileImpl(fName, encodeText(fText), writeFlags);
     }
 
     template<typename StringType>
-    ErrorCode writeDataFileImpl(StringType fName, const std::vector<std::uint8_t> &fData, WriteFileFlags writeFlags) const
+    ErrorCode writeDataFileImpl2(StringType fName, const std::vector<std::uint8_t> &fData, WriteFileFlags writeFlags) const
     {
         if (getVfsGlobalReadonly())
         {
@@ -419,63 +238,408 @@ protected:
     }
 
 
-    //! Возвращает путь
-    template<typename StringType>
-    StringType getPathImpl(StringType fullName) const
+#if defined(WIN32) || defined(_WIN32)
+
+    // Под виндой юникодное апи первично
+
+    ErrorCode enumerateNativeDirectoryImpl(const std::wstring &vPath, const std::wstring &path, std::vector< DirectoryEntryInfoW > &entries) const
     {
-        fullName = normalizeFilenameImpl(fullName);
-        return umba::filename::getPath(fullName);
+        if (!umba::filesys::enumerateDirectory( path
+                                              , [&](const std::wstring &name, const umba::filesys::FileStat &fileStat)
+                                                {
+                                                    DirectoryEntryInfoW e;
+                                                    e.entryName     = name;
+                                                    e.path          = vPath;
+                                                    fillDirectoryEntryInfoFromUmbaFilesysFileStat(fileStat, e);
+                                                    entries.emplace_back(e);
+                                                    return true;
+                                                }
+                                              )
+           )
+        {
+            return ErrorCode::genericError;
+        }
+
+        return ErrorCode::ok;
     }
 
-    //! Возвращает имя и расширение
-    template<typename StringType>
-    StringType getFileNameImpl(StringType fullName) const
+    ErrorCode enumerateNativeDirectoryImpl(const std::string &vPath, const std::string &path, std::vector< DirectoryEntryInfoA > &entries) const
     {
-        fullName = normalizeFilenameImpl(fullName);
-        return umba::filename::getFileName(fullName);
+        std::vector< DirectoryEntryInfoW > entriesW;
+        ErrorCode e = enumerateNativeDirectoryImpl(decodeFilename(vPath), decodeFilename(path), entriesW);
+        if (e!=ErrorCode::ok)
+        {
+            return e;
+        }
+
+        for(const auto& ew: entriesW)
+        {
+            DirectoryEntryInfoA ea = fromOppositeDirectoryEntryInfo(ew);
+            ea.entryName           = encodeFilename(ew.entryName);
+            ea.path                = encodeFilename(ew.path);
+            entries.emplace_back(ea);
+        }
+
+        return e;
     }
 
-    //! Возвращает путь и имя
-    template<typename StringType>
-    StringType getPathFileImpl(StringType fullName) const
+    bool isFileExistAndReadableImpl(std::wstring fName) const
     {
-        fullName = normalizeFilenameImpl(fullName);
-        return umba::filename::getPathFile(fullName);
+        fName = normalizeFilenameImpl(fName);
+
+        if (isVirtualRoot(fName))
+        {
+            return false;
+        }
+
+        std::wstring nativePath;
+        ErrorCode err = toNativePathName(fName, nativePath);
+        if (err!=ErrorCode::ok)
+        {
+            return false;
+        }
+
+        return umba::filesys::isFileReadable(nativePath);
     }
 
-    //! Возвращает расширение
-    template<typename StringType>
-    StringType getExtImpl(StringType fullName) const
+    bool isFileExistAndReadableImpl(std::string fName) const
     {
-        fullName = normalizeFilenameImpl(fullName);
-        return umba::filename::getExt(fullName);
+        return isFileExistAndReadableImpl(decodeFilename(fName));
     }
 
-    //! Возвращает имя файла без пути и расширения
-    template<typename StringType>
-    StringType getNameImpl(StringType fullName) const
+    bool isDirectoryImpl(std::wstring dName) const
     {
-        fullName = normalizeFilenameImpl(fullName);
-        return umba::filename::getName(fullName);
+        dName = normalizeFilenameImpl(dName);
+
+        if (isVirtualRoot(dName))
+        {
+            return true;
+        }
+
+        std::wstring nativePath;
+        ErrorCode err = toNativePathName(dName, nativePath);
+        if (err!=ErrorCode::ok)
+        {
+            return false;
+        }
+
+        return umba::filesys::isPathDirectory(nativePath);
     }
 
-    //! Конкатенация путей
-    template<typename StringType>
-    StringType appendPathImpl(StringType pathAppendTo, StringType appendPath) const
+    bool isDirectoryImpl(std::string dName) const
     {
-        pathAppendTo = normalizeFilenameImpl(pathAppendTo);
-        appendPath   = normalizeFilenameImpl(appendPath);
-        return umba::filename::appendPath(pathAppendTo, appendPath, (typename StringType::value_type)'/');
+        return isDirectoryImpl(decodeFilename(dName));
     }
 
-    //! Добавление расширения
-    template<typename StringType>
-    StringType appendExtImpl(StringType nameAppendTo, StringType appendExt) const
+    bool forceCreateDirectory(const std::wstring &dirname) const
     {
-        nameAppendTo = normalizeFilenameImpl(nameAppendTo);
-        appendExt    = normalizeFilenameImpl(appendExt);
-        return umba::filename::appendExt(nameAppendTo, appendExt, (typename StringType::value_type)'.');
+        return umba::filesys::createDirectoryEx(dirname, true);
     }
+
+    bool forceCreateDirectory(const std::string &dirname) const
+    {
+        // перекодируем локальным местечковым энкодером в юникодное имя
+        return forceCreateDirectory(decodeFilename(dirname));
+    }
+
+
+#else // Generic POSIX - Linups etc
+
+    ErrorCode enumerateNativeDirectoryImpl(const std::string &vPath, const std::string &path, std::vector< DirectoryEntryInfoA > &entries) const
+    {
+        if (!umba::filesys::enumerateDirectory( path
+                                              , [&](const std::string &name, const umba::filesys::FileStat &fileStat)
+                                                {
+                                                    DirectoryEntryInfoA e;
+                                                    e.entryName     = name;
+                                                    e.path          = vPath;
+                                                    fillDirectoryEntryInfoFromUmbaFilesysFileStat(fileStat, e);
+                                                    entries.emplace_back(e);
+                                                    return true;
+                                                }
+                                              )
+           )
+        {
+            return ErrorCode::genericError;
+        }
+
+        return ErrorCode::ok;
+    
+    }
+
+    ErrorCode enumerateNativeDirectoryImpl(const std::wstring &vPath, const std::wstring &path, std::vector< DirectoryEntryInfoW > &entries) const
+    {
+        std::vector< DirectoryEntryInfoA > entriesA;
+        ErrorCode e = enumerateNativeDirectoryImpl(decodeFilename(path), entriesA);
+        if (e!=ErrorCode::ok)
+        {
+            return e;
+        }
+
+        for(const auto& ea: entriesA)
+        {
+            DirectoryEntryInfoW ew = fromOppositeDirectoryEntryInfo(ea);
+            ew.entryName           = encodeFilename(ea.entryName);
+            ew.path                = encodeFilename(ea.path);
+            entries.emplace_back(ew);
+        }
+
+        return e;
+    }
+
+    bool isFileExistAndReadableImpl(std::string fName) const
+    {
+        fName = normalizeFilenameImpl(fName);
+
+        if (isVirtualRoot(fName))
+        {
+            return false;
+        }
+
+        std::string nativePath;
+        ErrorCode err = toNativePathName(fName, nativePath);
+        if (err!=ErrorCode::ok)
+        {
+            return false;
+        }
+
+        return umba::filesys::isFileReadable(nativePath);
+    }
+
+    bool isFileExistAndReadableImpl(std::wstring fName) const
+    {
+        return isFileExistAndReadableImpl(encodeFilename(fName));
+    }
+
+    bool isDirectoryImpl(std::string dName) const
+    {
+        dName = normalizeFilenameImpl(dName);
+
+        if (isVirtualRoot(dName))
+        {
+            return true;
+        }
+
+        std::string nativePath;
+        ErrorCode err = toNativePathName(dName, nativePath);
+        if (err!=ErrorCode::ok)
+        {
+            return false;
+        }
+
+        return umba::filesys::isPathDirectory(nativePath);
+    }
+
+    bool isDirectoryImpl(std::wstring dName) const
+    {
+        return isDirectoryImpl(encodeFilename(dName));
+    }
+
+    // В линупсе всё работает через char* API - используем его как основное
+
+    bool forceCreateDirectory(const std::wstring &dirname) const
+    {
+        return forceCreateDirectory(encodeFilename(dirname));
+    }
+
+    bool forceCreateDirectory(const std::string &dirname) const
+    {
+        return umba::filesys::createDirectoryEx(dirname, true);
+    }
+
+
+#endif
+
+
+#if defined(WIN32) || defined(_WIN32)
+
+    // Под виндой юникодное апи первично
+
+    //------------------------------
+    ErrorCode readDataFileImpl(const std::wstring &fName, std::vector<std::uint8_t> &fData) const
+    {
+        return readDataFileImpl2(fName, fData);
+    }
+
+    ErrorCode readDataFileImpl(const std::string  &fName, std::vector<std::uint8_t> &fData) const
+    {
+        return readDataFileImpl2(decodeFilename(fName), fData);
+    }
+
+    //------------------------------
+    
+    //------------------------------
+    ErrorCode readTextFileImpl(const std::wstring & fName, std::wstring &fText) const
+    {
+        return readTextFileImpl2(fName, fText);
+    }
+
+    ErrorCode readTextFileImpl(const std::string & fName, std::wstring &fText) const
+    {
+        return readTextFileImpl2(decodeFilename(fName), fText);
+    }
+
+    //------------------------------
+    ErrorCode readTextFileImpl(const std::wstring &fName, std::string &fText) const
+    {
+        return readTextFileImpl2(fName, fText);
+    }
+
+    ErrorCode readTextFileImpl(const std::string &fName, std::string &fText) const
+    {
+        return readTextFileImpl2(decodeFilename(fName), fText);
+    }
+
+    //------------------------------
+    ErrorCode writeTextFileImpl(const std::wstring &fName, const std::string &fText, WriteFileFlags writeFlags) const
+    {
+        return writeTextFileImpl2(fName, fText, writeFlags);
+    }
+
+    ErrorCode writeTextFileImpl(const std::string &fName, const std::string &fText, WriteFileFlags writeFlags) const
+    {
+        return writeTextFileImpl2(decodeFilename(fName), fText, writeFlags);
+    }
+
+    //------------------------------
+    ErrorCode writeTextFileImpl(const std::wstring &fName, const std::wstring &fText, WriteFileFlags writeFlags) const
+    {
+        return writeTextFileImpl2(fName, fText, writeFlags);
+    }
+
+    ErrorCode writeTextFileImpl(const std::string &fName, const std::wstring &fText, WriteFileFlags writeFlags) const
+    {
+        return writeTextFileImpl2(decodeFilename(fName), fText, writeFlags);
+    }
+
+    //------------------------------
+    ErrorCode writeDataFileImpl(const std::wstring &fName, const std::vector<std::uint8_t> &fData, WriteFileFlags writeFlags) const
+    {
+        return writeDataFileImpl2(fName, fData, writeFlags);
+    }
+
+    ErrorCode writeDataFileImpl(const std::string &fName, const std::vector<std::uint8_t> &fData, WriteFileFlags writeFlags) const
+    {
+        return writeDataFileImpl2(decodeFilename(fName), fData, writeFlags);
+    }
+
+
+#else // Generic POSIX - Linups etc
+
+    // Под лиеупом ascii апи первично
+
+    ErrorCode readDataFileImpl(const std::string &fName, std::vector<std::uint8_t> &fData) const
+    {
+        return readDataFileImpl2(fName, fData)
+    }
+
+    ErrorCode readDataFileImpl(const std::wstring &fName, std::vector<std::uint8_t> &fData) const
+    {
+        return readDataFileImpl2(encodeFilename(fName), fData)
+    }
+
+    ErrorCode readTextFileImpl(const std::string &fName, std::wstring &fText) const
+    {
+        return readTextFileImpl2(fName, fText);
+    }
+
+    ErrorCode readTextFileImpl(const std::wstring &fName, std::wstring &fText) const
+    {
+        return readTextFileImpl2(encodeFilename(fName), fText);
+    }
+
+
+    ErrorCode readTextFileImpl(const std::string &fName, std::string &fText) const
+    {
+        readTextFileImpl2(fName, fText);
+    }
+
+    ErrorCode readTextFileImpl(const std::wstring &fName, std::string &fText) const
+    {
+        readTextFileImpl2(encodeFilename(fName), fText);
+    }
+
+
+    ErrorCode writeTextFileImpl(const std::string  &fName, const std::string &fText, WriteFileFlags writeFlags) const
+    {
+        return writeTextFileImpl2(fName, fText, writeFlags);
+    }
+
+    ErrorCode writeTextFileImpl(const std::wstring &fName, const std::string &fText, WriteFileFlags writeFlags) const
+    {
+        return writeTextFileImpl2(encodeFilename(fName), fText, writeFlags);
+    }
+
+
+    ErrorCode writeTextFileImpl(const std::string  &fName, const std::wstring &fText, WriteFileFlags writeFlags) const
+    {
+        return writeTextFileImpl2(fName, fText, writeFlags);
+    }
+
+    ErrorCode writeTextFileImpl(const std::wstring &fName, const std::wstring &fText, WriteFileFlags writeFlags) const
+    {
+        return writeTextFileImpl2(encodeFilename(fName), fText, writeFlags);
+    }
+
+
+    ErrorCode writeDataFileImpl(const std::string  &fName, const std::vector<std::uint8_t> &fData, WriteFileFlags writeFlags) const
+    {
+        return writeTextFileImpl2(fName, fData, writeFlags);
+    }
+
+    ErrorCode writeDataFileImpl(const std::wstring &fName, const std::vector<std::uint8_t> &fData, WriteFileFlags writeFlags) const
+    {
+        return writeTextFileImpl2(encodeFilename(fName), fData, writeFlags);
+    }
+
+
+
+#endif
+
+
+
+    template<typename StringType>
+    ErrorCode enumerateDirectoryImpl(StringType dirPath, std::vector< DirectoryEntryInfoT<StringType> > &entries) const
+    {
+        entries.clear();
+
+        dirPath = normalizeFilenameImpl(dirPath);
+
+        if (isVirtualRoot(dirPath)) // Корень
+        {
+            // Перечисляем mount points
+
+            std::map<std::wstring, MountPointInfo>::const_iterator mit = m_mountPoints.begin();
+            for(; mit!=m_mountPoints.end(); ++mit)
+            {
+                DirectoryEntryInfoT<StringType> dirEntryInfo;
+                dirEntryInfo.entryName     = filenameToStringType<StringType, std::wstring>(mit->second.name);
+                dirEntryInfo.path          = dirPath;
+                dirEntryInfo.fileTypeFlags = mit->second.flags;
+                entries.emplace_back(dirEntryInfo);
+            }
+
+            return ErrorCode::ok;
+
+        }
+
+        StringType nativePath;
+        ErrorCode err = toNativePathName(dirPath, nativePath);
+        if (err!=ErrorCode::ok)
+        {
+            return err;
+        }
+
+        if (!umba::filesys::isPathDirectory(nativePath))
+        {
+            return ErrorCode::notDirectory;
+        }
+
+        // enumerate native directory
+        return enumerateNativeDirectoryImpl(dirPath, nativePath, entries);
+
+    }
+
 
 
 
@@ -507,7 +671,6 @@ public:
         str = enum_serialize(e);
         errStr = decodeFilename(str); // Тут на кодировку ваще пофиг, всё равно только латиница
     }
-
 
 
     //! Возвращает путь
@@ -591,6 +754,7 @@ public:
     {
         return appendPathImpl(nameAppendTo, appendExt);
     }
+
 
 
     // Конвертация в/из нативных путей. Если путь вне вирт системы - ErrorCode::notFound. 
@@ -739,6 +903,31 @@ public:
     {
         return writeDataFileImpl(fName, fData, writeFlags);
     }
+
+
+    // std::string formatFiletime<std::string>( filetime_t t, const std::string &fmt )
+    // Описание форматной строки тут - https://man7.org/linux/man-pages/man3/strftime.3.html
+    virtual std::string  formatFiletime(FileTime ft, const std::string  &fmt) const override
+    {
+        return umba::filesys::formatFiletime(ft, fmt);
+    }
+
+    virtual std::wstring formatFiletime(FileTime ft, const std::wstring &fmt) const override
+    {
+        return decodeFilename(umba::filesys::formatFiletime(ft, encodeFilename(fmt)));
+    }
+
+
+    virtual std::uint32_t getFileSizeLo(FileSize sz) const override
+    {
+        return (std::uint32_t)(sz&0xFFFFFFFull);
+    }
+
+    virtual std::uint32_t getFileSizeHi(FileSize sz) const override
+    {
+        return (std::uint32_t)(sz>>32);
+    }
+
 
 
 }; // struct FileSystemImpl
