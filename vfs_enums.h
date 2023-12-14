@@ -152,5 +152,136 @@ MARTY_CPP_ENUM_FLAGS_SERIALIZE_SET(WriteFileFlags, std::set)
 
 MARTY_CPP_ENUM_FLAGS_DESERIALIZE_SET(WriteFileFlags, std::set)
 
+
+enum class SortFlags : std::uint32_t
+{
+    invalid              = (std::uint32_t)(-1),
+    unknown              = (std::uint32_t)(-1),
+    none                 = 0x0000,
+    normal               = 0x0000,
+    orderAscending       = 0x0000,
+    orderDescending      = 0x0001,
+    ignoreCase           = 0x0002,
+    digitsAsNumber       = 0x0004,
+    byType               = 0x0008,
+    bySize               = 0x0010,
+    byTimeCreation       = 0x0020,
+    byTimeLastModified   = 0x0040,
+    byTimeLastAccess     = 0x0080,
+    directoriesFirst     = 0x0100,
+    directoriesLast      = 0x0200
+
+}; // enum class SortFlags : std::uint32_t
+
+MARTY_CPP_MAKE_ENUM_FLAGS(SortFlags)
+
+MARTY_CPP_ENUM_FLAGS_SERIALIZE_BEGIN( SortFlags, std::map, 1 )
+    MARTY_CPP_ENUM_FLAGS_SERIALIZE_ITEM( SortFlags::invalid              , "Invalid"            );
+    MARTY_CPP_ENUM_FLAGS_SERIALIZE_ITEM( SortFlags::none                 , "None"               );
+    MARTY_CPP_ENUM_FLAGS_SERIALIZE_ITEM( SortFlags::orderDescending      , "OrderDescending"    );
+    MARTY_CPP_ENUM_FLAGS_SERIALIZE_ITEM( SortFlags::ignoreCase           , "IgnoreCase"         );
+    MARTY_CPP_ENUM_FLAGS_SERIALIZE_ITEM( SortFlags::digitsAsNumber       , "DigitsAsNumber"     );
+    MARTY_CPP_ENUM_FLAGS_SERIALIZE_ITEM( SortFlags::byTimeCreation       , "ByTimeCreation"     );
+    MARTY_CPP_ENUM_FLAGS_SERIALIZE_ITEM( SortFlags::byType               , "ByType"             );
+    MARTY_CPP_ENUM_FLAGS_SERIALIZE_ITEM( SortFlags::bySize               , "BySize"             );
+    MARTY_CPP_ENUM_FLAGS_SERIALIZE_ITEM( SortFlags::byTimeLastModified   , "ByTimeLastModified" );
+    MARTY_CPP_ENUM_FLAGS_SERIALIZE_ITEM( SortFlags::byTimeLastAccess     , "ByTimeLastAccess"   );
+    MARTY_CPP_ENUM_FLAGS_SERIALIZE_ITEM( SortFlags::directoriesFirst     , "DirectoriesFirst"   );
+    MARTY_CPP_ENUM_FLAGS_SERIALIZE_ITEM( SortFlags::directoriesLast      , "DirectoriesLast"    );
+MARTY_CPP_ENUM_FLAGS_SERIALIZE_END( SortFlags, std::map, 1 )
+
+MARTY_CPP_ENUM_FLAGS_DESERIALIZE_BEGIN( SortFlags, std::map, 1 )
+    MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( SortFlags::invalid              , "invalid"            );
+    MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( SortFlags::invalid              , "unknown"            );
+    MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( SortFlags::none                 , "orderascending"     );
+    MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( SortFlags::none                 , "none"               );
+    MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( SortFlags::none                 , "normal"             );
+    MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( SortFlags::orderDescending      , "orderdescending"    );
+    MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( SortFlags::ignoreCase           , "ignorecase"         );
+    MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( SortFlags::digitsAsNumber       , "digitsasnumber"     );
+    MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( SortFlags::byTimeCreation       , "bytimecreation"     );
+    MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( SortFlags::byType               , "bytype"             );
+    MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( SortFlags::bySize               , "bysize"             );
+    MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( SortFlags::byTimeLastModified   , "bytimelastmodified" );
+    MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( SortFlags::byTimeLastAccess     , "bytimelastaccess"   );
+    MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( SortFlags::directoriesFirst     , "directoriesfirst"   );
+    MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( SortFlags::directoriesLast      , "directorieslast"    );
+MARTY_CPP_ENUM_FLAGS_DESERIALIZE_END( SortFlags, std::map, 1 )
+
+MARTY_CPP_ENUM_FLAGS_SERIALIZE_SET(SortFlags, std::set)
+
+MARTY_CPP_ENUM_FLAGS_DESERIALIZE_SET(SortFlags, std::set)
+
+
+enum class EnumerateFlags : std::uint32_t
+{
+    invalid                = (std::uint32_t)(-1),
+    unknown                = (std::uint32_t)(-1),
+    none                   = 0x0000,
+    enumerateFiles         = 0x0001,
+    enumerateDirectories   = 0x0002,
+    enumerateBoth          = 0x0003,
+    enumerateAll           = 0x0003
+
+}; // enum class EnumerateFlags : std::uint32_t
+
+MARTY_CPP_MAKE_ENUM_FLAGS(EnumerateFlags)
+
+MARTY_CPP_ENUM_FLAGS_SERIALIZE_BEGIN( EnumerateFlags, std::map, 1 )
+    MARTY_CPP_ENUM_FLAGS_SERIALIZE_ITEM( EnumerateFlags::enumerateFiles         , "EnumerateFiles"       );
+    MARTY_CPP_ENUM_FLAGS_SERIALIZE_ITEM( EnumerateFlags::invalid                , "Invalid"              );
+    MARTY_CPP_ENUM_FLAGS_SERIALIZE_ITEM( EnumerateFlags::none                   , "None"                 );
+    MARTY_CPP_ENUM_FLAGS_SERIALIZE_ITEM( EnumerateFlags::enumerateDirectories   , "EnumerateDirectories" );
+    MARTY_CPP_ENUM_FLAGS_SERIALIZE_ITEM( EnumerateFlags::enumerateBoth          , "EnumerateBoth"        );
+MARTY_CPP_ENUM_FLAGS_SERIALIZE_END( EnumerateFlags, std::map, 1 )
+
+MARTY_CPP_ENUM_FLAGS_DESERIALIZE_BEGIN( EnumerateFlags, std::map, 1 )
+    MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( EnumerateFlags::enumerateFiles         , "enumeratefiles"       );
+    MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( EnumerateFlags::invalid                , "invalid"              );
+    MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( EnumerateFlags::invalid                , "unknown"              );
+    MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( EnumerateFlags::none                   , "none"                 );
+    MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( EnumerateFlags::enumerateDirectories   , "enumeratedirectories" );
+    MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( EnumerateFlags::enumerateBoth          , "enumerateboth"        );
+    MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( EnumerateFlags::enumerateBoth          , "enumerateall"         );
+MARTY_CPP_ENUM_FLAGS_DESERIALIZE_END( EnumerateFlags, std::map, 1 )
+
+MARTY_CPP_ENUM_FLAGS_SERIALIZE_SET(EnumerateFlags, std::set)
+
+MARTY_CPP_ENUM_FLAGS_DESERIALIZE_SET(EnumerateFlags, std::set)
+
+
+enum class FileMaskFlags : std::uint32_t
+{
+    invalid        = (std::uint32_t)(-1),
+    unknown        = (std::uint32_t)(-1),
+    none           = 0x0000,
+    matchSimple    = 0x0000,
+    matchRegex     = 0x0001,
+    matchExtOnly   = 0x0002
+
+}; // enum class FileMaskFlags : std::uint32_t
+
+MARTY_CPP_MAKE_ENUM_FLAGS(FileMaskFlags)
+
+MARTY_CPP_ENUM_FLAGS_SERIALIZE_BEGIN( FileMaskFlags, std::map, 1 )
+    MARTY_CPP_ENUM_FLAGS_SERIALIZE_ITEM( FileMaskFlags::invalid        , "Invalid"      );
+    MARTY_CPP_ENUM_FLAGS_SERIALIZE_ITEM( FileMaskFlags::none           , "None"         );
+    MARTY_CPP_ENUM_FLAGS_SERIALIZE_ITEM( FileMaskFlags::matchRegex     , "MatchRegex"   );
+    MARTY_CPP_ENUM_FLAGS_SERIALIZE_ITEM( FileMaskFlags::matchExtOnly   , "MatchExtOnly" );
+MARTY_CPP_ENUM_FLAGS_SERIALIZE_END( FileMaskFlags, std::map, 1 )
+
+MARTY_CPP_ENUM_FLAGS_DESERIALIZE_BEGIN( FileMaskFlags, std::map, 1 )
+    MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( FileMaskFlags::invalid        , "invalid"      );
+    MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( FileMaskFlags::invalid        , "unknown"      );
+    MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( FileMaskFlags::none           , "none"         );
+    MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( FileMaskFlags::none           , "matchsimple"  );
+    MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( FileMaskFlags::matchRegex     , "matchregex"   );
+    MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( FileMaskFlags::matchExtOnly   , "matchextonly" );
+MARTY_CPP_ENUM_FLAGS_DESERIALIZE_END( FileMaskFlags, std::map, 1 )
+
+MARTY_CPP_ENUM_FLAGS_SERIALIZE_SET(FileMaskFlags, std::set)
+
+MARTY_CPP_ENUM_FLAGS_DESERIALIZE_SET(FileMaskFlags, std::set)
+
 } // namespace marty_virtual_fs
 

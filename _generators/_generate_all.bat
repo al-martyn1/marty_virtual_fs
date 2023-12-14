@@ -38,10 +38,24 @@
 @set WRITEFILEFLAGS_GEN_FLAGS=       --enum-flags=0 --enum-flags=type-decl,serialize,deserialize,lowercase,enum-class,flags,fmt-hex %VALUES_CAMEL% %SERIALIZE_PASCAL% %FLAGENUM_EXTRA%
 @set WRITEFILEFLAGS_DEF=invalid,unknown=-1;none,normal=0;forceCreateDir=1;forceOverwrite=2
 
+@set SORTFLAGS_GEN_FLAGS=       --enum-flags=0 --enum-flags=type-decl,serialize,deserialize,lowercase,enum-class,flags,fmt-hex %VALUES_CAMEL% %SERIALIZE_PASCAL% %FLAGENUM_EXTRA% %HEX4%
+@set SORTFLAGS_DEF=invalid,unknown=-1;none,normal,orderAscending=0;orderDescending=1;ignoreCase=2;digitsAsNumber=4;byType;bySize;byTimeCreation;byTimeLastModified;byTimeLastAccess;directoriesFirst;directoriesLast
+
+@set ENUMERATEFLAGS_GEN_FLAGS=       --enum-flags=0 --enum-flags=type-decl,serialize,deserialize,lowercase,enum-class,flags,fmt-hex %VALUES_CAMEL% %SERIALIZE_PASCAL% %FLAGENUM_EXTRA% %HEX4%
+@set ENUMERATEFLAGS_DEF=invalid,unknown=-1;none=0;enumerateFiles=1;enumerateDirectories=2;enumerateBoth,enumerateAll=3
+
+@set FILEMASKFLAGS_GEN_FLAGS=       --enum-flags=0 --enum-flags=type-decl,serialize,deserialize,lowercase,enum-class,flags,fmt-hex %VALUES_CAMEL% %SERIALIZE_PASCAL% %FLAGENUM_EXTRA% %HEX4%
+@set FILEMASKFLAGS_DEF=invalid,unknown=-1;none,matchSimple=0;matchRegex=1;matchExtOnly=2
+
+
 umba-enum-gen %GEN_OPTS% %HEX2% %TPL_OVERRIDE% ^
 %ENDIANNESS_GEN_FLAGS%                  %UINT32% -E=Endianness                        -F=%ENDIANNESS_DEF%               ^
 %FILETYPEFLAGS_GEN_FLAGS%               %UINT32% -E=FileTypeFlags                     -F=%FILETYPEFLAGS_DEF%            ^
 %ERRORCODE_GEN_FLAGS%                   %UINT32% -E=ErrorCode                         -F=%ERRORCODE_DEF%                ^
 %WRITEFILEFLAGS_GEN_FLAGS%              %UINT32% -E=WriteFileFlags                    -F=%WRITEFILEFLAGS_DEF%           ^
+%SORTFLAGS_GEN_FLAGS%                   %UINT32% -E=SortFlags                         -F=%SORTFLAGS_DEF%                ^
+%ENUMERATEFLAGS_GEN_FLAGS%              %UINT32% -E=EnumerateFlags                    -F=%ENUMERATEFLAGS_DEF%           ^
+%FILEMASKFLAGS_GEN_FLAGS%               %UINT32% -E=FileMaskFlags                     -F=%FILEMASKFLAGS_DEF%            ^
+
 ..\vfs_enums.h
 

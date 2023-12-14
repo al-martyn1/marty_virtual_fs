@@ -37,6 +37,27 @@ public:
     // virtual std::string  encodeFilename( const std::wstring &str ) const override
     // virtual std::wstring decodeFilename( const std::string  &str ) const override
 
+    virtual std::uint8_t* swapByteOrder(std::uint8_t *pData, std::size_t dataSize) const override
+    {
+        return FileDataEncoderImpl::swapByteOrder(pData, dataSize);
+    }
+
+    virtual Endianness    getHostEndianness() const override
+    {
+        return FileDataEncoderImpl::getHostEndianness();
+    }
+
+    virtual std::uint8_t* convertEndiannessToHost  (std::uint8_t *pData, std::size_t dataSize, Endianness srcEndianness) const override
+    {
+        return FileDataEncoderImpl::convertEndiannessToHost(pData, dataSize, srcEndianness);
+    }
+
+    virtual std::uint8_t* convertEndiannessFromHost(std::uint8_t *pData, std::size_t dataSize, Endianness dstEndianness) const override
+    {
+        return FileDataEncoderImpl::convertEndiannessFromHost(pData, dataSize, dstEndianness);
+    }
+
+
 protected:
 
 
@@ -451,6 +472,17 @@ protected:
 #endif
 
 
+    int compareDescendingChecker(int cmpRes, SortFlags sortFlags) const
+    {
+        if ((sortFlags&SortFlags::orderDescending)!=0)
+        {
+            cmpRes = -cmpRes;
+        }
+
+        return cmpRes;
+    }
+
+
 #if defined(WIN32) || defined(_WIN32)
 
     // Под виндой юникодное апи первично
@@ -523,6 +555,32 @@ protected:
         return writeDataFileImpl2(decodeFilename(fName), fData, writeFlags);
     }
 
+    virtual int compareFilenames(const std::string  &n1, const std::string  &n2, SortFlags sortFlags) const override
+    {
+        return compareFilenames(decodeFilename(n1), decodeFilename(n2), sortFlags);
+    }
+
+    // https://learn.microsoft.com/en-us/windows/win32/api/stringapiset/nf-stringapiset-comparestringw
+    // https://learn.microsoft.com/en-us/windows/win32/api/stringapiset/nf-stringapiset-comparestringex
+    virtual int compareFilenames(const std::wstring &n1, const std::wstring &n2, SortFlags sortFlags) const override
+    {
+        DWORD dwCmpFlags = 0;
+
+        if ((sortFlags&SortFlags::ignoreCase)!=0)
+        {
+            dwCmpFlags |= LINGUISTIC_IGNORECASE; // or NORM_IGNORECASE?
+        }
+
+        if ((sortFlags&SortFlags::digitsAsNumber)!=0)
+        {
+            dwCmpFlags |= SORT_DIGITSASNUMBERS;
+        }
+
+        int cmpRes = ::CompareStringW(LOCALE_USER_DEFAULT, dwCmpFlags, n1.data(), (int)n1.size(), n2.data(), (int)n2.size());
+
+        return compareDescendingChecker(cmpRes, sortFlags); // CSTR_GREATER_THAN case
+    }
+
 
 #else // Generic POSIX - Linups etc
 
@@ -592,10 +650,131 @@ protected:
         return writeTextFileImpl2(encodeFilename(fName), fData, writeFlags);
     }
 
+    virtual int compareFilenames(const std::string  &n1, const std::string  &n2, SortFlags sortFlags) const override
+    {
+        std::string N1 = n1
+        std::string N2 = n2;
+
+        if ((sortFlags&SortFlags::ignoreCase)!=0)
+        {
+            umba::string_plus::toupper(N1);
+            umba::string_plus::toupper(N2);
+        }
+
+        // Под линупсом не поддерживается
+        // if ((sortFlags&SortFlags::digitsAsNumber)!=0)
+        // {
+        //     dwCmpFlags |= SORT_DIGITSASNUMBERS;
+        // }
+
+        int cmpRes = N1.compare(N2);
+
+        return compareDescendingChecker(cmpRes, sortFlags);
+    }
+
+    virtual int compareFilenames(const std::wstring &n1, const std::wstring &n2, SortFlags sortFlags) const override
+    {
+        return compareFilenames(encodeFilename(n1), encodeFilename(n1), sortFlags);
+    }
 
 
 #endif
 
+
+
+    template<typename StringType>
+    int compareDirectoryEntriesImpl(const DirectoryEntryInfoT<StringType> &e1, const DirectoryEntryInfoT<StringType> &e2, SortFlags sortFlags) const
+    {
+
+        if ((sortFlags&SortFlags::directoriesFirst)!=0 || (sortFlags&SortFlags::directoriesLast)!=0) // флаги взаимоисключающие, но мы не будем ругаться, если заданы оба
+        {
+            bool isDir1 = (e1.fileTypeFlags & FileTypeFlags::directory)!=0;
+            bool isDir2 = (e2.fileTypeFlags & FileTypeFlags::directory)!=0;
+        
+            if (isDir1!=isDir2 && (isDir1 || isDir2))
+            {
+                // Одно из имен - точно каталог, но только одно
+
+                int cmpRes = 0;
+
+                if (isDir1)
+                {
+                    cmpRes = -1;
+                }
+                else
+                {
+                    cmpRes =  1;
+                }
+
+                if ((sortFlags&SortFlags::directoriesLast)!=0)
+                {
+                    cmpRes = -cmpRes;
+                }
+
+                return cmpRes;
+            }
+        }
+
+
+        if ((sortFlags&SortFlags::byType)!=0)
+        {
+            auto ext1 = getExt(e1.entryName);
+            auto ext2 = getExt(e2.entryName);
+
+            // Сбрасываем флаг orderDescending - потому что мы тут сами его потом проверим
+            // Устанавливаем флаг игнорирования регистра - расширения сравниваем без учета регистра - .JPG и .jpg - это одинаковый тип файла
+            int cmpRes = compareFilenames(ext1, ext2, (sortFlags & ~SortFlags::orderDescending) | SortFlags::ignoreCase); 
+            if (cmpRes)
+            {
+                return compareDescendingChecker(cmpRes, sortFlags);
+            }
+        }
+
+        if ((sortFlags&SortFlags::bySize)!=0)
+        {
+            if (e1.fileSize!=e2.fileSize)
+            {
+                int cmpRes = e1.fileSize<e2.fileSize ? -1 : 1;
+                return compareDescendingChecker(cmpRes, sortFlags);
+            }
+        }
+
+        if ((sortFlags&SortFlags::byTimeCreation)!=0)
+        {
+            if (e1.timeCreation!=e2.timeCreation)
+            {
+                int cmpRes = e1.timeCreation<e2.timeCreation ? -1 : 1;
+                return compareDescendingChecker(cmpRes, sortFlags);
+            }
+        }
+
+        if ((sortFlags&SortFlags::byTimeLastModified)!=0)
+        {
+            if (e1.timeLastModified!=e2.timeLastModified)
+            {
+                int cmpRes = e1.timeLastModified<e2.timeLastModified ? -1 : 1;
+                return compareDescendingChecker(cmpRes, sortFlags);
+            }
+        }
+
+        if ((sortFlags&SortFlags::byTimeLastAccess)!=0)
+        {
+            if (e1.timeLastAccess!=e2.timeLastAccess)
+            {
+                int cmpRes = e1.timeLastAccess<e2.timeLastAccess ? -1 : 1;
+                return compareDescendingChecker(cmpRes, sortFlags);
+            }
+        }
+
+        // if ((sortFlags&SortFlags::)!=0)
+        // {
+        // }
+
+        // Если всё предыдущее равно - то таки сравниваем тупо имена файлов
+
+        return compareFilenames(e1.entryName, e2.entryName, sortFlags); 
+
+    }
 
 
     template<typename StringType>
@@ -926,6 +1105,16 @@ public:
     virtual std::uint32_t getFileSizeHi(FileSize sz) const override
     {
         return (std::uint32_t)(sz>>32);
+    }
+
+    virtual int compareDirectoryEntries(const DirectoryEntryInfoA &e1, const DirectoryEntryInfoA &e2, SortFlags sortFlags) const override
+    {
+        return compareDirectoryEntriesImpl(e1, e2, sortFlags);
+    }
+
+    virtual int compareDirectoryEntries(const DirectoryEntryInfoW &e1, const DirectoryEntryInfoW &e2, SortFlags sortFlags) const override
+    {
+        return compareDirectoryEntriesImpl(e1, e2, sortFlags);
     }
 
 

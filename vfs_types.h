@@ -8,13 +8,21 @@
 
 
 
+//----------------------------------------------------------------------------
 namespace marty_virtual_fs{
 
 
+
+
+//----------------------------------------------------------------------------
 typedef umba::filesys::filesize_t  FileSize;
 typedef umba::filesys::filetime_t  FileTime;
 
+//----------------------------------------------------------------------------
 
+
+
+//----------------------------------------------------------------------------
 template<typename StringType>
 struct DirectoryEntryInfoT
 {
@@ -29,10 +37,11 @@ struct DirectoryEntryInfoT
     StringType       path            ; // Имеет ли смысл сделать shared_ptr<StringType>, чтобы память экономить и лишнее не копировать тудым сюдым?
 };
 
+//------------------------------
 typedef DirectoryEntryInfoT<std::string>   DirectoryEntryInfoA;
 typedef DirectoryEntryInfoT<std::wstring>  DirectoryEntryInfoW;
 
-
+//------------------------------
 template<typename StringType> inline
 void fillDirectoryEntryInfoFromUmbaFilesysFileStat(const umba::filesys::FileStat &fileStat, DirectoryEntryInfoT<StringType> &dirInfo)
 {
@@ -44,6 +53,7 @@ void fillDirectoryEntryInfoFromUmbaFilesysFileStat(const umba::filesys::FileStat
 
 }
 
+//------------------------------
 inline
 DirectoryEntryInfoA fromOppositeDirectoryEntryInfo(const DirectoryEntryInfoW &infoW)
 {
@@ -56,6 +66,7 @@ DirectoryEntryInfoA fromOppositeDirectoryEntryInfo(const DirectoryEntryInfoW &in
     return infoA;
 }
 
+//------------------------------
 inline
 DirectoryEntryInfoW fromOppositeDirectoryEntryInfo(const DirectoryEntryInfoA &infoA)
 {
@@ -68,8 +79,29 @@ DirectoryEntryInfoW fromOppositeDirectoryEntryInfo(const DirectoryEntryInfoA &in
     return infoW;
 }
 
+//----------------------------------------------------------------------------
 
 
+
+//----------------------------------------------------------------------------
+template<typename StringType>
+struct FileMaskInfoT
+{
+    FileMaskFlags      fileMaskFlags = FileMaskFlags::matchSimple;
+
+    StringType         mask;
+
+}; // struct FileMaskInfoT
+
+//------------------------------
+typedef FileMaskInfoT<std::string>   FileMaskInfoA;
+typedef FileMaskInfoT<std::wstring>  FileMaskInfoW;
+
+//----------------------------------------------------------------------------
+
+
+
+//----------------------------------------------------------------------------
 
 } // namespace marty_virtual_fs
 

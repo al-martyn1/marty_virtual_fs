@@ -24,6 +24,13 @@ struct IFileSystem
 {
     virtual ~IFileSystem() {}
 
+    virtual std::uint8_t* swapByteOrder(std::uint8_t *pData, std::size_t dataSize) const = 0;
+
+    virtual Endianness    getHostEndianness() const = 0;
+    virtual std::uint8_t* convertEndiannessToHost  (std::uint8_t *pData, std::size_t dataSize, Endianness srcEndianness) const = 0;
+    virtual std::uint8_t* convertEndiannessFromHost(std::uint8_t *pData, std::size_t dataSize, Endianness dstEndianness) const = 0;
+
+
     // Нормализует виртуальное имя файла, нормализует разделители пути, и схлопывает спец пути типа "."/"..", 
     // чтобы мамкины "хакеры" из скрипта не могли вылезти за пределы песочницы
     // Выставляем наружу, чтобы в скрипте можно было проверить, как выглядит путь, который будет реально использоваться
@@ -83,6 +90,18 @@ struct IFileSystem
     virtual std::vector<DirectoryEntryInfoA> enumerateDirectory(const std::string  &dirPath, ErrorCode *pErr = 0) const = 0;
     virtual std::vector<DirectoryEntryInfoW> enumerateDirectory(const std::wstring &dirPath, ErrorCode *pErr = 0) const = 0;
 
+    #if 0
+    // Возвращает 0, если совпадения не найдено, >0 - индекс маски, по которой найдено совпадение, <0 - индекс маски, на которой произошла какая-то ошибка (например, корявый regex)
+    virtual int testMaskMatch(const DirectoryEntryInfoA &entry, EnumerateFlags enumerateFlags, const std::vector<FileMaskInfoA> &masks) const = 0;
+    virtual int testMaskMatch(const DirectoryEntryInfoW &entry, EnumerateFlags enumerateFlags, const std::vector<FileMaskInfoW> &masks) const = 0;
+
+    // Нерекурсивный обзор содержимого каталога, расширенная версия
+    virtual ErrorCode enumerateDirectoryEx(const std::string  &dirPath, EnumerateFlags enumerateFlags, const std::vector<FileMaskInfoA> &masks, std::vector<DirectoryEntryInfoA> &entries) const = 0;
+    virtual ErrorCode enumerateDirectoryEx(const std::wstring &dirPath, EnumerateFlags enumerateFlags, const std::vector<FileMaskInfoW> &masks, std::vector<DirectoryEntryInfoW> &entries) const = 0;
+
+    virtual std::vector<DirectoryEntryInfoA> enumerateDirectoryEx(const std::string  &dirPath, EnumerateFlags enumerateFlags, const std::vector<FileMaskInfoA> &masks, ErrorCode *pErr = 0) const = 0;
+    virtual std::vector<DirectoryEntryInfoW> enumerateDirectoryEx(const std::wstring &dirPath, EnumerateFlags enumerateFlags, const std::vector<FileMaskInfoW> &masks, ErrorCode *pErr = 0) const = 0;
+    #endif
 
     // std::string formatFiletime<std::string>( filetime_t t, const std::string &fmt )
     // Описание форматной строки тут - https://man7.org/linux/man-pages/man3/strftime.3.html
@@ -94,11 +113,19 @@ struct IFileSystem
     virtual std::uint32_t getFileSizeHi(FileSize sz) const = 0;
 
 
+    virtual int compareFilenames(const std::string  &n1, const std::string  &n2, SortFlags sortFlags) const = 0;
+    virtual int compareFilenames(const std::wstring &n1, const std::wstring &n2, SortFlags sortFlags) const = 0;
+
+    virtual int compareDirectoryEntries(const DirectoryEntryInfoA &e1, const DirectoryEntryInfoA &e2, SortFlags sortFlags) const = 0;
+    virtual int compareDirectoryEntries(const DirectoryEntryInfoW &e1, const DirectoryEntryInfoW &e2, SortFlags sortFlags) const = 0;
+
+
     virtual bool isFileExistAndReadable(const std::string  &fName) const = 0;
     virtual bool isFileExistAndReadable(const std::wstring &fName) const = 0;
 
     virtual bool isDirectory(const std::string  &dName) const = 0;
     virtual bool isDirectory(const std::wstring &dName) const = 0;
+
 
     // Тут автоматически работают перекодировки текста
     virtual ErrorCode readTextFile(const std::string  &fName, std::string  &fText) const = 0;
