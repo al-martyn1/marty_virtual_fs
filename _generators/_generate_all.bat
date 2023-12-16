@@ -45,7 +45,7 @@
 @set ENUMERATEFLAGS_DEF=invalid,unknown=-1;none=0;enumerateFiles=1;enumerateDirectories=2;enumerateBoth,enumerateAll=3
 
 @set FILEMASKFLAGS_GEN_FLAGS=       --enum-flags=0 --enum-flags=type-decl,serialize,deserialize,lowercase,enum-class,flags,fmt-hex %VALUES_CAMEL% %SERIALIZE_PASCAL% %FLAGENUM_EXTRA% %HEX4%
-@set FILEMASKFLAGS_DEF=invalid,unknown=-1;none,matchSimple=0;matchRegex=1;matchExtOnly=2
+@set FILEMASKFLAGS_DEF=invalid,unknown=-1;none,matchSimple=0;useAnchors=1;matchRegex=2;matchExtOnly=4
 
 
 umba-enum-gen %GEN_OPTS% %HEX2% %TPL_OVERRIDE% ^

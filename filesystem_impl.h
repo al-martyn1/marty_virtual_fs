@@ -7,12 +7,16 @@
 #include "umba/filename.h"
 #include "umba/filesys.h"
 #include "umba/string_plus.h"
+#include "umba/regex_helpers.h"
 
 // 
 #include "filedata_encoder_impl.h"
 #include "filename_encoder_impl.h"
 #include "i_filesystem.h"
 #include "virtual_fs_impl.h"
+
+//
+#include <algorithm>
 
 
 namespace marty_virtual_fs {
@@ -270,6 +274,7 @@ protected:
                                                 {
                                                     DirectoryEntryInfoW e;
                                                     e.entryName     = name;
+                                                    e.entryExt      = getExt(name);
                                                     e.path          = vPath;
                                                     fillDirectoryEntryInfoFromUmbaFilesysFileStat(fileStat, e);
                                                     entries.emplace_back(e);
@@ -297,6 +302,7 @@ protected:
         {
             DirectoryEntryInfoA ea = fromOppositeDirectoryEntryInfo(ew);
             ea.entryName           = encodeFilename(ew.entryName);
+            ea.entryExt            = encodeFilename(ew.entryExt);
             ea.path                = encodeFilename(ew.path);
             entries.emplace_back(ea);
         }
@@ -373,6 +379,7 @@ protected:
                                                 {
                                                     DirectoryEntryInfoA e;
                                                     e.entryName     = name;
+                                                    e.entryExt      = getExt(name);
                                                     e.path          = vPath;
                                                     fillDirectoryEntryInfoFromUmbaFilesysFileStat(fileStat, e);
                                                     entries.emplace_back(e);
@@ -401,6 +408,7 @@ protected:
         {
             DirectoryEntryInfoW ew = fromOppositeDirectoryEntryInfo(ea);
             ew.entryName           = encodeFilename(ea.entryName);
+            ew.entryExt            = encodeFilename(ea.entryExt);
             ew.path                = encodeFilename(ea.path);
             entries.emplace_back(ew);
         }
@@ -718,12 +726,12 @@ protected:
 
         if ((sortFlags&SortFlags::byType)!=0)
         {
-            auto ext1 = getExt(e1.entryName);
-            auto ext2 = getExt(e2.entryName);
+            // auto ext1 = getExt(e1.entryName);
+            // auto ext2 = getExt(e2.entryName);
 
             // Сбрасываем флаг orderDescending - потому что мы тут сами его потом проверим
             // Устанавливаем флаг игнорирования регистра - расширения сравниваем без учета регистра - .JPG и .jpg - это одинаковый тип файла
-            int cmpRes = compareFilenames(ext1, ext2, (sortFlags & ~SortFlags::orderDescending) | SortFlags::ignoreCase); 
+            int cmpRes = compareFilenames(e1.entryExt, e2.entryExt, (sortFlags & ~SortFlags::orderDescending) | SortFlags::ignoreCase); 
             if (cmpRes)
             {
                 return compareDescendingChecker(cmpRes, sortFlags);
@@ -820,7 +828,125 @@ protected:
     }
 
 
+    template<typename StringType>
+    int testMaskMatchImpl(const DirectoryEntryInfoT<StringType> &entry, const FileMaskInfoT<StringType> &mask) const
+    {
+        if (mask.fileMaskFlags==FileMaskFlags::invalid)
+        {
+            return -1;
+        }
 
+        try
+        {
+            CompiledFileMaskInfoT<StringType>  compiledFileMaskInfo = mask.compileRegex();
+            return umba::regex_helpers::regexMatch( ((compiledFileMaskInfo.fileMaskFlags&FileMaskFlags::matchExtOnly)!=0) ? entry.entryExt : entry.entryName
+                                                  , compiledFileMaskInfo.compiledMask
+                                                  , std::regex_constants::match_default
+                                                  );
+        }
+        catch(...)
+        {
+            return -1;
+        }
+
+    }
+
+
+    template<typename StringType>
+    ErrorCode enumerateDirectoryExImpl(const StringType &dirPath, EnumerateFlags enumerateFlags, SortFlags sortFlags, const std::vector<FileMaskInfoT<StringType> > &masks, std::vector<DirectoryEntryInfoT<StringType> > &entries) const
+    {
+        std::vector< DirectoryEntryInfoT<StringType> > entriesTmp;
+        ErrorCode err = enumerateDirectoryImpl(dirPath, entriesTmp);
+        if (err!=ErrorCode::ok)
+        {
+            return err;
+        }
+
+        std::vector< CompiledFileMaskInfoT<StringType> > compiledMasks;
+        for(const auto &m: masks)
+        {
+            try
+            {
+                compiledMasks.emplace_back(m.compileRegex());
+            }
+            catch(...)
+            {
+            }
+        }
+
+        entries.clear();
+
+
+        for(const auto &e : entriesTmp)
+        {
+            if ((enumerateFlags&EnumerateFlags::enumerateFiles)!=0) // Перечисляем файлы
+            {
+                if ((e.fileTypeFlags&FileTypeFlags::directory)!=0) 
+                {
+                    // Найден каталог - пропускаем
+                    continue;
+                }
+            }
+
+            if ((enumerateFlags&EnumerateFlags::enumerateDirectories)!=0) // Перечисляем каталоги
+            {
+                if ((e.fileTypeFlags&FileTypeFlags::directory)==0) 
+                {
+                    // Найден файл - пропускаем
+                    continue;
+                }
+            }
+
+
+            for(const auto &cm: compiledMasks)
+            {
+                try
+                {
+                    if (umba::regex_helpers::regexMatch( ((cm.fileMaskFlags&FileMaskFlags::matchExtOnly)!=0) ? e.entryExt : e.entryName
+                                                       , cm.compiledMask
+                                                       , std::regex_constants::match_default
+                                                       ))
+                    {
+                        entries.emplace_back(e);
+                        break; // маска сработала, продолжать не нужно
+                    }
+                }
+                catch(...)
+                {
+                }
+            }
+        }
+        //entries
+
+        std::stable_sort( entries.begin(), entries.end()
+                        , [&](const DirectoryEntryInfoT<StringType> &e1, const DirectoryEntryInfoT<StringType> &e2)
+                          {
+                              return compareDirectoryEntries(e1, e2, sortFlags) > 0;
+                          }
+                        );
+
+        return ErrorCode::ok;
+    }
+
+
+    template<typename StringType>
+    std::vector<DirectoryEntryInfoT<StringType> > enumerateDirectoryExImpl(const StringType &dirPath, EnumerateFlags enumerateFlags, SortFlags sortFlags, const std::vector<FileMaskInfoT<StringType> > &masks, ErrorCode *pErr = 0) const
+    {
+        std::vector<DirectoryEntryInfoT<StringType> > entries;
+
+        ErrorCode err = enumerateDirectoryExImpl(dirPath, enumerateFlags, sortFlags, masks, entries);
+
+        if (pErr)
+        {
+            *pErr = err;
+        }
+
+        return entries;
+    }
+
+    // int testMaskMatchImpl(const DirectoryEntryInfoT<StringType> &entry, const FileMaskInfoT<StringType> &mask) const
+    // ErrorCode enumerateDirectoryExImpl(const StringType &dirPath, EnumerateFlags enumerateFlags, SortFlags sortFlags, const std::vector<FileMaskInfoT<StringType> > &masks, std::vector<DirectoryEntryInfoT<StringType> > &entries) const
+    // std::vector<DirectoryEntryInfoT<StringType> > enumerateDirectoryExImpl(const StringType &dirPath, EnumerateFlags enumerateFlags, SortFlags sortFlags, const std::vector<FileMaskInfoT<StringType> > &masks, ErrorCode *pErr = 0) const
 
 public:
 
@@ -1115,6 +1241,41 @@ public:
     virtual int compareDirectoryEntries(const DirectoryEntryInfoW &e1, const DirectoryEntryInfoW &e2, SortFlags sortFlags) const override
     {
         return compareDirectoryEntriesImpl(e1, e2, sortFlags);
+    }
+
+
+    // Возвращает 0, если совпадения не найдено, >0 - индекс маски, по которой найдено совпадение, <0 - индекс маски, на которой произошла какая-то ошибка (например, корявый regex)
+    virtual int testMaskMatch(const DirectoryEntryInfoA &entry, const FileMaskInfoA &mask) const override
+    {
+        return testMaskMatch(entry, mask);
+    }
+
+    virtual int testMaskMatch(const DirectoryEntryInfoW &entry, const FileMaskInfoW &mask) const override
+    {
+        return testMaskMatchImpl(entry, mask);
+    }
+
+
+    // Нерекурсивный обзор содержимого каталога, расширенная версия
+    virtual ErrorCode enumerateDirectoryEx(const std::string  &dirPath, EnumerateFlags enumerateFlags, SortFlags sortFlags, const std::vector<FileMaskInfoA> &masks, std::vector<DirectoryEntryInfoA> &entries) const override
+    {
+        return enumerateDirectoryExImpl(dirPath, enumerateFlags, sortFlags, masks, entries);
+    }
+
+    virtual ErrorCode enumerateDirectoryEx(const std::wstring &dirPath, EnumerateFlags enumerateFlags, SortFlags sortFlags, const std::vector<FileMaskInfoW> &masks, std::vector<DirectoryEntryInfoW> &entries) const override
+    {
+        return enumerateDirectoryExImpl(dirPath, enumerateFlags, sortFlags, masks, entries);
+    }
+
+
+    virtual std::vector<DirectoryEntryInfoA> enumerateDirectoryEx(const std::string  &dirPath, EnumerateFlags enumerateFlags, SortFlags sortFlags, const std::vector<FileMaskInfoA> &masks, ErrorCode *pErr = 0) const override
+    {
+        return enumerateDirectoryExImpl(dirPath, enumerateFlags, sortFlags, masks, pErr);
+    }
+
+    virtual std::vector<DirectoryEntryInfoW> enumerateDirectoryEx(const std::wstring &dirPath, EnumerateFlags enumerateFlags, SortFlags sortFlags, const std::vector<FileMaskInfoW> &masks, ErrorCode *pErr = 0) const override
+    {
+        return enumerateDirectoryExImpl(dirPath, enumerateFlags, sortFlags, masks, pErr);
     }
 
 

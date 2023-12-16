@@ -256,8 +256,9 @@ enum class FileMaskFlags : std::uint32_t
     unknown        = (std::uint32_t)(-1),
     none           = 0x0000,
     matchSimple    = 0x0000,
-    matchRegex     = 0x0001,
-    matchExtOnly   = 0x0002
+    useAnchors     = 0x0001,
+    matchRegex     = 0x0002,
+    matchExtOnly   = 0x0004
 
 }; // enum class FileMaskFlags : std::uint32_t
 
@@ -266,6 +267,7 @@ MARTY_CPP_MAKE_ENUM_FLAGS(FileMaskFlags)
 MARTY_CPP_ENUM_FLAGS_SERIALIZE_BEGIN( FileMaskFlags, std::map, 1 )
     MARTY_CPP_ENUM_FLAGS_SERIALIZE_ITEM( FileMaskFlags::invalid        , "Invalid"      );
     MARTY_CPP_ENUM_FLAGS_SERIALIZE_ITEM( FileMaskFlags::none           , "None"         );
+    MARTY_CPP_ENUM_FLAGS_SERIALIZE_ITEM( FileMaskFlags::useAnchors     , "UseAnchors"   );
     MARTY_CPP_ENUM_FLAGS_SERIALIZE_ITEM( FileMaskFlags::matchRegex     , "MatchRegex"   );
     MARTY_CPP_ENUM_FLAGS_SERIALIZE_ITEM( FileMaskFlags::matchExtOnly   , "MatchExtOnly" );
 MARTY_CPP_ENUM_FLAGS_SERIALIZE_END( FileMaskFlags, std::map, 1 )
@@ -275,6 +277,7 @@ MARTY_CPP_ENUM_FLAGS_DESERIALIZE_BEGIN( FileMaskFlags, std::map, 1 )
     MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( FileMaskFlags::invalid        , "unknown"      );
     MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( FileMaskFlags::none           , "none"         );
     MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( FileMaskFlags::none           , "matchsimple"  );
+    MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( FileMaskFlags::useAnchors     , "useanchors"   );
     MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( FileMaskFlags::matchRegex     , "matchregex"   );
     MARTY_CPP_ENUM_FLAGS_DESERIALIZE_ITEM( FileMaskFlags::matchExtOnly   , "matchextonly" );
 MARTY_CPP_ENUM_FLAGS_DESERIALIZE_END( FileMaskFlags, std::map, 1 )

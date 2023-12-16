@@ -5,7 +5,9 @@
 #include "vfs_enums.h"
 //
 #include "umba/filesys.h"
-
+//
+#include "umba/regex_helpers.h"
+#include "umba/string_plus.h"
 
 
 //----------------------------------------------------------------------------
@@ -33,8 +35,9 @@ struct DirectoryEntryInfoT
     FileTime         timeLastAccess   = 0;
 
     StringType       entryName       ;
-
+    StringType       entryExt        ;
     StringType       path            ; // Имеет ли смысл сделать shared_ptr<StringType>, чтобы память экономить и лишнее не копировать тудым сюдым?
+
 };
 
 //------------------------------
@@ -85,11 +88,49 @@ DirectoryEntryInfoW fromOppositeDirectoryEntryInfo(const DirectoryEntryInfoA &in
 
 //----------------------------------------------------------------------------
 template<typename StringType>
+struct CompiledFileMaskInfoT
+{
+    FileMaskFlags                                         fileMaskFlags = FileMaskFlags::matchSimple;
+    std::basic_regex<typename StringType::value_type>     compiledMask  ;
+
+}; // struct FileMaskInfoT
+
+//------------------------------
+typedef CompiledFileMaskInfoT<std::string>   CompiledFileMaskInfoA;
+typedef CompiledFileMaskInfoT<std::wstring>  CompiledFileMaskInfoW;
+
+//----------------------------------------------------------------------------
+
+
+
+//----------------------------------------------------------------------------
+template<typename StringType>
 struct FileMaskInfoT
 {
     FileMaskFlags      fileMaskFlags = FileMaskFlags::matchSimple;
-
     StringType         mask;
+
+
+    // requires wrapping into try/catch
+    CompiledFileMaskInfoT<StringType> compileRegex() const
+    {
+        CompiledFileMaskInfoT<StringType> compiledFileMaskInfoMask;
+        compiledFileMaskInfoMask.fileMaskFlags = fileMaskFlags;
+
+        StringType expandedRegexStr;
+        if ((fileMaskFlags&FileMaskFlags::matchRegex)!=0)
+        {
+            expandedRegexStr = mask;
+        }
+        else
+        {
+            expandedRegexStr = umba::regex_helpers::expandSimpleMaskToEcmaRegex(mask, (fileMaskFlags&FileMaskFlags::useAnchors)!=0, false);
+        }
+
+        compiledFileMaskInfoMask.compiledMask = std::basic_regex<typename StringType::value_type>(expandedRegexStr);
+
+        return compiledFileMaskInfoMask;
+    }
 
 }; // struct FileMaskInfoT
 
