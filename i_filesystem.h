@@ -1,5 +1,5 @@
 /*! \file
-    \brief Interface for obtaining some basic app paths
+    \brief Interface for filesystem like access to something
 */
 
 #pragma once
