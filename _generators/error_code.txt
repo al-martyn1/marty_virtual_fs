@@ -1,0 +1,15 @@
+invalid,unknown=-1
+ok=0
+genericError=1
+notFound=2
+notExist=3
+alreadyExist=4
+accessDenied=5
+invalidName
+notSupported
+invalidMountPoint
+invalidMountTarget
+notDirectory
+invalidFormat
+unknownFormat
+missingFiles

@@ -33,7 +33,7 @@
 @set FILETYPEFLAGS_DEF=invalid=-1;normalFile=0;directory=1;deviceFile=2
 
 @set ERRORCODE_GEN_FLAGS=--enum-flags=0 --enum-flags=type-decl,serialize,deserialize,lowercase,enum-class,fmt-hex %VALUES_CAMEL% %SERIALIZE_PASCAL%
-@set ERRORCODE_DEF=invalid,unknown=-1;ok=0;genericError=1;notFound=2;notExist=3;alreadyExist=4;accessDenied=5;invalidName;notSupported;invalidMountPoint;invalidMountTarget;notDirectory
+@rem set ERRORCODE_DEF=invalid,unknown=-1;ok=0;genericError=1;notFound=2;notExist=3;alreadyExist=4;accessDenied=5;invalidName;notSupported;invalidMountPoint;invalidMountTarget;notDirectory
 
 @set WRITEFILEFLAGS_GEN_FLAGS=       --enum-flags=0 --enum-flags=type-decl,serialize,deserialize,lowercase,enum-class,flags,fmt-hex %VALUES_CAMEL% %SERIALIZE_PASCAL% %FLAGENUM_EXTRA%
 @set WRITEFILEFLAGS_DEF=invalid,unknown=-1;none,normal=0;forceCreateDir=1;forceOverwrite=2
@@ -49,9 +49,9 @@
 
 
 umba-enum-gen %GEN_OPTS% %HEX2% %TPL_OVERRIDE% ^
+%ERRORCODE_GEN_FLAGS%                   %UINT32% -E=ErrorCode                         -F=@error_code.txt                ^
 %ENDIANNESS_GEN_FLAGS%                  %UINT32% -E=Endianness                        -F=%ENDIANNESS_DEF%               ^
 %FILETYPEFLAGS_GEN_FLAGS%               %UINT32% -E=FileTypeFlags                     -F=%FILETYPEFLAGS_DEF%            ^
-%ERRORCODE_GEN_FLAGS%                   %UINT32% -E=ErrorCode                         -F=%ERRORCODE_DEF%                ^
 %WRITEFILEFLAGS_GEN_FLAGS%              %UINT32% -E=WriteFileFlags                    -F=%WRITEFILEFLAGS_DEF%           ^
 %SORTFLAGS_GEN_FLAGS%                   %UINT32% -E=SortFlags                         -F=%SORTFLAGS_DEF%                ^
 %ENUMERATEFLAGS_GEN_FLAGS%              %UINT32% -E=EnumerateFlags                    -F=%ENUMERATEFLAGS_DEF%           ^
