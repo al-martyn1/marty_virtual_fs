@@ -61,6 +61,48 @@ public:
         return FileDataEncoderImpl::convertEndiannessFromHost(pData, dataSize, dstEndianness);
     }
 
+    virtual std::string  encodeText( const std::wstring &str ) const override
+    {
+        return FileDataEncoderImpl::encodeText(str);
+    }
+
+    virtual std::string  encodeText( const std::string  &str ) const override
+    {
+        return FileDataEncoderImpl::encodeText(str);
+    }
+
+    virtual std::wstring decodeText( const std::wstring &str ) const override
+    {
+        return FileDataEncoderImpl::decodeText(str);
+    }
+
+    virtual std::wstring decodeText( const std::string  &str ) const override
+    {
+        return FileDataEncoderImpl::decodeText(str);
+    }
+
+
+    virtual std::string  encodeFilename( const std::wstring &str ) const override
+    {
+        return FilenameEncoderImpl::encodeFilename(str);
+    }
+
+    virtual std::string  encodeFilename( const std::string  &str ) const override
+    {
+        return FilenameEncoderImpl::encodeFilename(str);
+    }
+
+    virtual std::wstring decodeFilename( const std::wstring &str ) const override
+    {
+        return FilenameEncoderImpl::decodeFilename(str);
+    }
+
+    virtual std::wstring decodeFilename( const std::string  &str ) const override
+    {
+        return FilenameEncoderImpl::decodeFilename(str);
+    }
+
+
 
 protected:
 

@@ -16,6 +16,65 @@
 
 namespace marty_virtual_fs{
 
+enum class ErrorCode : std::uint32_t
+{
+    invalid              = (std::uint32_t)(-1),
+    unknown              = (std::uint32_t)(-1),
+    ok                   = 0x00,
+    genericError         = 0x01,
+    notFound             = 0x02,
+    notExist             = 0x03,
+    alreadyExist         = 0x04,
+    accessDenied         = 0x05,
+    invalidName          = 0x06,
+    notSupported         = 0x07,
+    invalidMountPoint    = 0x08,
+    invalidMountTarget   = 0x09,
+    notDirectory         = 0x0A,
+    invalidFormat        = 0x0B,
+    unknownFormat        = 0x0C,
+    missingFiles         = 0x0D
+
+}; // enum class ErrorCode : std::uint32_t
+
+MARTY_CPP_ENUM_CLASS_SERIALIZE_BEGIN( ErrorCode, std::map, 1 )
+    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::accessDenied         , "AccessDenied"       );
+    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::invalid              , "Invalid"            );
+    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::ok                   , "Ok"                 );
+    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::genericError         , "GenericError"       );
+    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::missingFiles         , "MissingFiles"       );
+    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::alreadyExist         , "AlreadyExist"       );
+    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::notFound             , "NotFound"           );
+    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::notExist             , "NotExist"           );
+    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::invalidName          , "InvalidName"        );
+    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::invalidMountTarget   , "InvalidMountTarget" );
+    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::notSupported         , "NotSupported"       );
+    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::notDirectory         , "NotDirectory"       );
+    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::invalidMountPoint    , "InvalidMountPoint"  );
+    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::invalidFormat        , "InvalidFormat"      );
+    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::unknownFormat        , "UnknownFormat"      );
+MARTY_CPP_ENUM_CLASS_SERIALIZE_END( ErrorCode, std::map, 1 )
+
+MARTY_CPP_ENUM_CLASS_DESERIALIZE_BEGIN( ErrorCode, std::map, 1 )
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::accessDenied         , "accessdenied"       );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::invalid              , "invalid"            );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::invalid              , "unknown"            );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::ok                   , "ok"                 );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::genericError         , "genericerror"       );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::missingFiles         , "missingfiles"       );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::alreadyExist         , "alreadyexist"       );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::notFound             , "notfound"           );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::notExist             , "notexist"           );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::invalidName          , "invalidname"        );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::invalidMountTarget   , "invalidmounttarget" );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::notSupported         , "notsupported"       );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::notDirectory         , "notdirectory"       );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::invalidMountPoint    , "invalidmountpoint"  );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::invalidFormat        , "invalidformat"      );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::unknownFormat        , "unknownformat"      );
+MARTY_CPP_ENUM_CLASS_DESERIALIZE_END( ErrorCode, std::map, 1 )
+
+
 enum class Endianness : std::uint32_t
 {
     invalid        = (std::uint32_t)(-1),
@@ -67,56 +126,6 @@ MARTY_CPP_ENUM_FLAGS_DESERIALIZE_END( FileTypeFlags, std::map, 1 )
 MARTY_CPP_ENUM_FLAGS_SERIALIZE_SET(FileTypeFlags, std::set)
 
 MARTY_CPP_ENUM_FLAGS_DESERIALIZE_SET(FileTypeFlags, std::set)
-
-
-enum class ErrorCode : std::uint32_t
-{
-    invalid              = (std::uint32_t)(-1),
-    unknown              = (std::uint32_t)(-1),
-    ok                   = 0x00,
-    genericError         = 0x01,
-    notFound             = 0x02,
-    notExist             = 0x03,
-    alreadyExist         = 0x04,
-    accessDenied         = 0x05,
-    invalidName          = 0x06,
-    notSupported         = 0x07,
-    invalidMountPoint    = 0x08,
-    invalidMountTarget   = 0x09,
-    notDirectory         = 0x0A
-
-}; // enum class ErrorCode : std::uint32_t
-
-MARTY_CPP_ENUM_CLASS_SERIALIZE_BEGIN( ErrorCode, std::map, 1 )
-    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::accessDenied         , "AccessDenied"       );
-    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::invalid              , "Invalid"            );
-    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::ok                   , "Ok"                 );
-    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::genericError         , "GenericError"       );
-    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::alreadyExist         , "AlreadyExist"       );
-    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::notFound             , "NotFound"           );
-    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::notExist             , "NotExist"           );
-    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::invalidName          , "InvalidName"        );
-    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::invalidMountTarget   , "InvalidMountTarget" );
-    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::notSupported         , "NotSupported"       );
-    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::notDirectory         , "NotDirectory"       );
-    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::invalidMountPoint    , "InvalidMountPoint"  );
-MARTY_CPP_ENUM_CLASS_SERIALIZE_END( ErrorCode, std::map, 1 )
-
-MARTY_CPP_ENUM_CLASS_DESERIALIZE_BEGIN( ErrorCode, std::map, 1 )
-    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::accessDenied         , "accessdenied"       );
-    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::invalid              , "invalid"            );
-    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::invalid              , "unknown"            );
-    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::ok                   , "ok"                 );
-    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::genericError         , "genericerror"       );
-    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::alreadyExist         , "alreadyexist"       );
-    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::notFound             , "notfound"           );
-    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::notExist             , "notexist"           );
-    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::invalidName          , "invalidname"        );
-    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::invalidMountTarget   , "invalidmounttarget" );
-    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::notSupported         , "notsupported"       );
-    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::notDirectory         , "notdirectory"       );
-    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::invalidMountPoint    , "invalidmountpoint"  );
-MARTY_CPP_ENUM_CLASS_DESERIALIZE_END( ErrorCode, std::map, 1 )
 
 
 enum class WriteFileFlags : std::uint32_t
