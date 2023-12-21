@@ -1094,12 +1094,12 @@ public:
     //! Добавление расширения
     virtual std::string  appendExt(const std::string  &nameAppendTo, const std::string  &appendExt) const override // static
     {
-        return appendPathImpl(nameAppendTo, appendExt);
+        return appendExtImpl(nameAppendTo, appendExt);
     }
 
     virtual std::wstring appendExt(const std::wstring &nameAppendTo, const std::wstring &appendExt) const override // static
     {
-        return appendPathImpl(nameAppendTo, appendExt);
+        return appendExtImpl(nameAppendTo, appendExt);
     }
 
 
