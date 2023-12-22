@@ -610,6 +610,59 @@ protected:
         return compareFilenames(decodeFilename(n1), decodeFilename(n2), sortFlags);
     }
 
+
+    struct OsVersionInfo
+    {
+        //DWORD dwOSVersionInfoSize ;
+        DWORD dwMajorVersion      ;
+        DWORD dwMinorVersion      ;
+        DWORD dwBuildNumber       ;
+        DWORD dwPlatformId        ;
+        WORD  wServicePackMajor   ;
+        WORD  wServicePackMinor   ;
+        WORD  wSuiteMask          ;
+        BYTE  wProductType        ;
+    };
+
+
+    static
+    OsVersionInfo getOsVersionInfo()
+    {
+        OSVERSIONINFOEXW osvi;
+        osvi.dwOSVersionInfoSize = sizeof(osvi);
+
+        OsVersionInfo osviRes = {0};
+
+        // https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-getversionexa
+        #if defined(_MSC_VER)
+            #pragma warning(push)
+            #pragma warning(disable:4996) // warning C4996: 'GetVersionExW': was declared deprecated
+        #endif
+
+        if (!GetVersionExW((LPOSVERSIONINFOW)&osvi))
+        {
+            return osviRes;
+        }
+
+        #if defined(_MSC_VER)
+            #pragma warning(pop)
+        #endif
+
+
+        osviRes.dwMajorVersion    = osvi.dwMajorVersion   ;
+        osviRes.dwMinorVersion    = osvi.dwMinorVersion   ;
+        osviRes.dwBuildNumber     = osvi.dwBuildNumber    ;
+        osviRes.dwPlatformId      = osvi.dwPlatformId     ;
+        osviRes.wServicePackMajor = osvi.wServicePackMajor;
+        osviRes.wServicePackMinor = osvi.wServicePackMinor;
+        osviRes.wSuiteMask        = osvi.wSuiteMask       ;
+        osviRes.wProductType      = osvi.wProductType     ;
+
+        return osviRes;
+    }
+    
+
+
     // https://learn.microsoft.com/en-us/windows/win32/api/stringapiset/nf-stringapiset-comparestringw
     // https://learn.microsoft.com/en-us/windows/win32/api/stringapiset/nf-stringapiset-comparestringex
     virtual int compareFilenames(const std::wstring &n1, const std::wstring &n2, SortFlags sortFlags) const override
@@ -623,7 +676,22 @@ protected:
 
         if ((sortFlags&SortFlags::digitsAsNumber)!=0)
         {
-            dwCmpFlags |= SORT_DIGITSASNUMBERS;
+            #if defined(SORT_DIGITSASNUMBERS)
+
+                dwCmpFlags |= SORT_DIGITSASNUMBERS;
+
+            #else
+
+                // https://learn.microsoft.com/en-us/cpp/porting/modifying-winver-and-win32-winnt?view=msvc-170
+
+                OsVersionInfo osvi = getOsVersionInfo();
+                if (osvi.dwMajorVersion>=7)
+                {
+                    dwCmpFlags |= 0x00000008; // SORT_DIGITSASNUMBERS for WINVER >= _WIN32_WINNT_WIN7
+                }
+
+            #endif
+
         }
 
         int cmpRes = ::CompareStringW(LOCALE_USER_DEFAULT, dwCmpFlags, n1.data(), (int)n1.size(), n2.data(), (int)n2.size());
