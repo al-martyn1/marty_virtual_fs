@@ -52,6 +52,12 @@ struct IAppPaths
     virtual bool getAppTempPath(std::string  &p) const = 0;
     virtual bool getAppTempPath(std::wstring &p) const = 0;
 
+    virtual bool getAppLogsPathEx(std::string  &p, bool bCreateFolder) const = 0;
+    virtual bool getAppLogsPathEx(std::wstring &p, bool bCreateFolder) const = 0;
+
+    virtual bool getAppLogsPath(std::string  &p) const = 0;
+    virtual bool getAppLogsPath(std::wstring &p) const = 0;
+
     virtual void getAppName(std::string  &a) const = 0;
     virtual void getAppName(std::wstring &a) const = 0;
 

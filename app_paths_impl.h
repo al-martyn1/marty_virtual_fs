@@ -8,6 +8,7 @@
 #include "app_paths_common_impl.h"
 
 #include "umba/filesys.h"
+#include "umba/string_plus.h"
 #include "utils.h"
 
 namespace marty_virtual_fs {
@@ -130,6 +131,14 @@ protected:
         return bCreateFolder ? forceCreateDirectory(p) : true;
     }
 
+    template<typename StringType>
+    bool getAppLogsPathExImpl(StringType &p, bool bCreateFolder) const
+    {
+        p = getFullPath<StringType>(umba::filesys::getCurrentUserHomeDirectory<StringType>(), true); // makeDot
+        p = umba::filename::appendPath(p, umba::string_plus::make_string<StringType>(".logs"));
+        return bCreateFolder ? forceCreateDirectory(p) : true;
+    }
+
 
 public:
 
@@ -199,6 +208,27 @@ public:
     virtual bool getAppTempPath(std::wstring &p) const override
     {
         return getAppTempPathExImpl(p, false);
+    }
+
+
+    virtual bool getAppLogsPathEx(std::string  &p, bool bCreateFolder) const override
+    {
+        return getAppLogsPathExImpl(p, bCreateFolder);
+    }
+
+    virtual bool getAppLogsPathEx(std::wstring &p, bool bCreateFolder) const override
+    {
+        return getAppLogsPathExImpl(p, bCreateFolder);
+    }
+
+    virtual bool getAppLogsPath(std::string  &p) const override
+    {
+        return getAppLogsPathExImpl(p, false);
+    }
+
+    virtual bool getAppLogsPath(std::wstring &p) const override
+    {
+        return getAppLogsPathExImpl(p, false);
     }
 
 
