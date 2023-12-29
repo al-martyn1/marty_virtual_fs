@@ -1163,16 +1163,18 @@ public:
     }
 
 
-    virtual void getErrorCodeString(ErrorCode e, std::string  &errStr) const override
+    virtual bool getErrorCodeString(ErrorCode e, std::string  &errStr) const override
     {
         errStr = enum_serialize(e);
+        return !errStr.empty();
     }
 
-    virtual void getErrorCodeString(ErrorCode e, std::wstring &errStr) const override
+    virtual bool getErrorCodeString(ErrorCode e, std::wstring &errStr) const override
     {
         std::string str;
         str = enum_serialize(e);
         errStr = decodeFilename(str); // Тут на кодировку ваще пофиг, всё равно только латиница
+        return !errStr.empty();
     }
 
 

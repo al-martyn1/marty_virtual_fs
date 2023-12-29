@@ -49,8 +49,8 @@ struct IFileSystem
     virtual std::wstring normalizeFilename(const std::wstring &fname) const = 0; // static
 
     // Возвращает текстовую строку, соответствующую коду ошибки
-    virtual void getErrorCodeString(ErrorCode e, std::string  &errStr) const = 0; // static
-    virtual void getErrorCodeString(ErrorCode e, std::wstring &errStr) const = 0; // static
+    virtual bool getErrorCodeString(ErrorCode e, std::string  &errStr) const = 0; // static
+    virtual bool getErrorCodeString(ErrorCode e, std::wstring &errStr) const = 0; // static
 
 
     // "Статические" методы для извлечения частей пути
