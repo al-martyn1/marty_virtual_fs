@@ -13,3 +13,4 @@ notDirectory
 invalidFormat
 unknownFormat
 missingFiles
+notImplemented

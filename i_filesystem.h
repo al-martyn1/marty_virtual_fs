@@ -93,6 +93,10 @@ struct IFileSystem
     virtual ErrorCode toNativePathName(const std::string  &vfsName, std::string  &nativeName) const = 0;
     virtual ErrorCode toNativePathName(const std::wstring &vfsName, std::wstring &nativeName) const = 0;
 
+    virtual ErrorCode createDirectory(const std::string  &dirPath, bool bForce ) const = 0;
+    virtual ErrorCode createDirectory(const std::wstring &dirPath, bool bForce ) const = 0;
+
+
     // Нерекурсивный обзор содержимого каталога
     virtual ErrorCode enumerateDirectory(const std::string  &dirPath, std::vector<DirectoryEntryInfoA> &entries) const = 0;
     virtual ErrorCode enumerateDirectory(const std::wstring &dirPath, std::vector<DirectoryEntryInfoW> &entries ) const = 0;
@@ -102,8 +106,8 @@ struct IFileSystem
 
 
     // Возвращает 0, если совпадения не найдено, >0 - индекс маски, по которой найдено совпадение, <0 - индекс маски, на которой произошла какая-то ошибка (например, корявый regex)
-    virtual int testMaskMatch(const DirectoryEntryInfoA &entry, const FileMaskInfoA &mask) const = 0;
-    virtual int testMaskMatch(const DirectoryEntryInfoW &entry, const FileMaskInfoW &mask) const = 0;
+    virtual bool testMaskMatch(const DirectoryEntryInfoA &entry, const FileMaskInfoA &mask) const = 0;
+    virtual bool testMaskMatch(const DirectoryEntryInfoW &entry, const FileMaskInfoW &mask) const = 0;
 
     // Нерекурсивный обзор содержимого каталога, расширенная версия
     virtual ErrorCode enumerateDirectoryEx(const std::string  &dirPath, EnumerateFlags enumerateFlags, SortFlags sortFlags, const std::vector<FileMaskInfoA> &masks, std::vector<DirectoryEntryInfoA> &entries) const = 0;
@@ -135,6 +139,13 @@ struct IFileSystem
 
     virtual bool isDirectory(const std::string  &dName) const = 0;
     virtual bool isDirectory(const std::wstring &dName) const = 0;
+
+
+    virtual std::string  makePathCanonical(const std::string &p) const = 0;
+    virtual std::wstring makePathCanonical(const std::wstring &p) const = 0;
+
+    virtual std::string  makeNativePathCanonical(const std::string &p) const = 0;
+    virtual std::wstring makeNativePathCanonical(const std::wstring &p) const = 0;
 
 
     // Тут автоматически работают перекодировки текста

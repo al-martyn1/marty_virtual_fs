@@ -33,7 +33,8 @@ enum class ErrorCode : std::uint32_t
     notDirectory         = 0x0A,
     invalidFormat        = 0x0B,
     unknownFormat        = 0x0C,
-    missingFiles         = 0x0D
+    missingFiles         = 0x0D,
+    notImplemented       = 0x0E
 
 }; // enum class ErrorCode : std::uint32_t
 
@@ -53,6 +54,7 @@ MARTY_CPP_ENUM_CLASS_SERIALIZE_BEGIN( ErrorCode, std::map, 1 )
     MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::invalidMountPoint    , "InvalidMountPoint"  );
     MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::invalidFormat        , "InvalidFormat"      );
     MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::unknownFormat        , "UnknownFormat"      );
+    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::notImplemented       , "NotImplemented"     );
 MARTY_CPP_ENUM_CLASS_SERIALIZE_END( ErrorCode, std::map, 1 )
 
 MARTY_CPP_ENUM_CLASS_DESERIALIZE_BEGIN( ErrorCode, std::map, 1 )
@@ -72,6 +74,7 @@ MARTY_CPP_ENUM_CLASS_DESERIALIZE_BEGIN( ErrorCode, std::map, 1 )
     MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::invalidMountPoint    , "invalidmountpoint"  );
     MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::invalidFormat        , "invalidformat"      );
     MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::unknownFormat        , "unknownformat"      );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::notImplemented       , "notimplemented"     );
 MARTY_CPP_ENUM_CLASS_DESERIALIZE_END( ErrorCode, std::map, 1 )
 
 

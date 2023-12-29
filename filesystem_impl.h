@@ -103,6 +103,26 @@ public:
     }
 
 
+    virtual std::string  makePathCanonical(const std::string &p) const override
+    {
+        return VirtualFsImpl::makePathCanonical(p);
+    }
+
+    virtual std::wstring makePathCanonical(const std::wstring &p) const override
+    {
+        return VirtualFsImpl::makePathCanonical(p);
+    }
+
+    virtual std::string  makeNativePathCanonical(const std::string &p) const override
+    {
+        return VirtualFsImpl::makeNativePathCanonical(p);
+    }
+
+    virtual std::wstring makeNativePathCanonical(const std::wstring &p) const override
+    {
+        return VirtualFsImpl::makeNativePathCanonical(p);
+    }
+
 
 protected:
 
@@ -411,6 +431,35 @@ protected:
         return forceCreateDirectory(decodeFilename(dirname));
     }
 
+    ErrorCode createDirectoryImpl(std::wstring dirPath, bool bForce ) const
+    {
+        if (getVfsGlobalReadonly())
+        {
+            return ErrorCode::accessDenied;
+        }
+
+        dirPath = normalizeFilenameImpl(dirPath);
+
+        if (isVirtualRoot(dirPath))
+        {
+            return ErrorCode::accessDenied;
+        }
+
+        std::wstring nativePath;
+        ErrorCode err = toNativePathName(dirPath, nativePath);
+        if (err!=ErrorCode::ok)
+        {
+            return err;
+        }
+
+        return umba::filesys::createDirectoryEx(nativePath, bForce) ? ErrorCode::ok : ErrorCode::accessDenied;
+    }
+
+    ErrorCode createDirectoryImpl(std::string dirPath, bool bForce ) const
+    {
+        return createDirectoryImpl(decodeFilename(dirPath), bForce);
+    }
+
 
 #else // Generic POSIX - Linups etc
 
@@ -517,6 +566,36 @@ protected:
     {
         return umba::filesys::createDirectoryEx(dirname, true);
     }
+
+    ErrorCode createDirectoryImpl(std::string dirPath, bool bForce ) const
+    {
+        if (getVfsGlobalReadonly())
+        {
+            return ErrorCode::accessDenied;
+        }
+
+        dirPath = normalizeFilenameImpl(dirPath);
+
+        if (isVirtualRoot(dirPath))
+        {
+            return ErrorCode::accessDenied;
+        }
+
+        std::string nativePath;
+        ErrorCode err = toNativePathName(dirPath, nativePath);
+        if (err!=ErrorCode::ok)
+        {
+            return err;
+        }
+
+        return umba::filesys::createDirectoryEx(nativePath, bForce) ? ErrorCode::ok : ErrorCode::accessDenied;
+    }
+
+    ErrorCode createDirectoryImpl(std::wstring dirPath, bool bForce ) const
+    {
+        return createDirectoryImpl(encodeFilename(dirPath), bForce);
+    }
+
 
 
 #endif
@@ -939,11 +1018,11 @@ protected:
 
 
     template<typename StringType>
-    int testMaskMatchImpl(const DirectoryEntryInfoT<StringType> &entry, const FileMaskInfoT<StringType> &mask) const
+    bool testMaskMatchImpl(const DirectoryEntryInfoT<StringType> &entry, const FileMaskInfoT<StringType> &mask) const
     {
         if (mask.fileMaskFlags==FileMaskFlags::invalid)
         {
-            return -1;
+            return false;
         }
 
         try
@@ -956,7 +1035,7 @@ protected:
         }
         catch(...)
         {
-            return -1;
+            return false;
         }
 
     }
@@ -1060,6 +1139,15 @@ protected:
 
 public:
 
+    virtual ErrorCode createDirectory(const std::string  &dirPath, bool bForce ) const override
+    {
+        return createDirectoryImpl(dirPath, bForce );
+    }
+
+    virtual ErrorCode createDirectory(const std::wstring &dirPath, bool bForce ) const override
+    {
+        return createDirectoryImpl(dirPath, bForce );
+    }
 
     // Нормализует виртуальное имя файла, нормализует разделители пути, и схлопывает спец пути типа "."/"..", 
     // чтобы мамкины "хакеры" из скрипта не могли вылезти за пределы песочницы
@@ -1355,12 +1443,12 @@ public:
 
 
     // Возвращает 0, если совпадения не найдено, >0 - индекс маски, по которой найдено совпадение, <0 - индекс маски, на которой произошла какая-то ошибка (например, корявый regex)
-    virtual int testMaskMatch(const DirectoryEntryInfoA &entry, const FileMaskInfoA &mask) const override
+    virtual bool testMaskMatch(const DirectoryEntryInfoA &entry, const FileMaskInfoA &mask) const override
     {
         return testMaskMatch(entry, mask);
     }
 
-    virtual int testMaskMatch(const DirectoryEntryInfoW &entry, const FileMaskInfoW &mask) const override
+    virtual bool testMaskMatch(const DirectoryEntryInfoW &entry, const FileMaskInfoW &mask) const override
     {
         return testMaskMatchImpl(entry, mask);
     }

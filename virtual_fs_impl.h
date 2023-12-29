@@ -35,8 +35,50 @@ public:
     VirtualFsImpl& operator=(VirtualFsImpl &&)      = default;
 
 
-    // virtual std::string  encodeFilename( const std::wstring &str ) const override
-    // virtual std::wstring decodeFilename( const std::string  &str ) const override
+protected:
+
+    template<typename StringType>
+    StringType makePathCanonicalImpl(StringType p) const
+    {
+        typedef typename StringType::value_type CharType;
+
+        // Хвостовой слэш не должен нас путать, но только если он не единственный символ, а то скушаем корневой слэш
+        if (p.size()>1)
+        {
+            umba::filename::stripLastPathSep(p);
+        }
+
+        return umba::filename::makeCanonicalSimple(p, StringType(1, (CharType)'.'), StringType(2, (CharType)'.'), (CharType)'/');
+    }
+
+    template<typename StringType>
+    StringType makeNativePathCanonicalImpl(StringType p) const
+    {
+        return umba::filename::makeCanonical(p);
+    }
+
+    
+
+    virtual std::string  makePathCanonical(const std::string &p) const override
+    {
+        return makePathCanonicalImpl(p);
+    }
+
+    virtual std::wstring makePathCanonical(const std::wstring &p) const override
+    {
+        return makePathCanonicalImpl(p);
+    }
+
+    virtual std::string  makeNativePathCanonical(const std::string &p) const override
+    {
+        return makeNativePathCanonicalImpl(p);
+    }
+
+    virtual std::wstring makeNativePathCanonical(const std::wstring &p) const override
+    {
+        return makeNativePathCanonicalImpl(p);
+    }
+
 
 protected:
 
@@ -176,12 +218,13 @@ protected:
         }
         else
         {
-            using namespace umba::filename;
+            //using namespace umba::filename;
 
             //std::vector<StringType>::const_iterator vpEnd = vpParts.end(); // cend чот не работает
             StringType vPathRestMerged = umba::string_plus::merge<StringType,std::vector<StringType>::const_iterator>(vpIt, vpParts.end(), (CharType)'/' /* , [](const StringType &str) { return str; } */ );
             StringType mntTargetPath   = filenameToStringType<StringType,std::wstring>(mntInfo.target);
-            realPath = makeCanonical( appendPath(mntTargetPath, vPathRestMerged) );
+            //realPath = makeCanonical( appendPath(mntTargetPath, vPathRestMerged) );
+            realPath = this->makeNativePathCanonical(appendPath(mntTargetPath, vPathRestMerged));
             return ErrorCode::ok;
         }
     }
@@ -190,7 +233,7 @@ protected:
     {
         #if defined(WIN32) || defined(_WIN32)
 
-            return umba::string_plus::toupper_copy( umba::filename::makeCanonical(k) );
+            return umba::string_plus::toupper_copy( this->makeNativePathCanonical /* umba::filename::makeCanonical */ (k) );
 
         #else // Generic POSIX - Linups etc
 
@@ -219,10 +262,10 @@ protected:
     template<typename StringType>
     ErrorCode virtualizeRealPathImpl( StringType realPath_, StringType &vPath) const
     {
-        using namespace umba::filename;
+        //using namespace umba::filename;
         typedef typename StringType::value_type CharType;
 
-        std::wstring realPath   = makeCanonical(decodeFilename(realPath_));
+        std::wstring realPath   = this->makeNativePathCanonical /* umba::filename::makeCanonical */ (decodeFilename(realPath_));
 
         // StringType 
         std::wstring realPathCmp = prepareVirtualizeCmp(realPath);
@@ -241,11 +284,11 @@ protected:
             // вглубь других, то будет выбрана первая найденная, а не самая длинная версия
 
             realPath.erase(0, cmp.size()); // Удаляем из исходного имени кусок, соответствующий по длине таргету текущей mount point
-            stripFirstPathSep(realPath);
+            umba::filename::stripFirstPathSep(realPath);
 
-            auto vpCandy = makeCanonical( vrpImplAppendPath(mit->second.name, realPath), L'/' );
+            auto vpCandy = this->makePathCanonical(vrpImplAppendPath(mit->second.name, realPath)); //umba::filename::makeCanonical( vrpImplAppendPath(mit->second.name, realPath), L'/' );
             
-            stripFirstPathSep(vpCandy);
+            umba::filename::stripFirstPathSep(vpCandy);
             vPath = filenameToStringType<StringType,std::wstring>(std::wstring(1, L'/') + vpCandy);
 
             return ErrorCode::ok;
@@ -268,13 +311,9 @@ protected:
             umba::filename::stripLastPathSep(fname);
         }
 
-        return umba::filename::makeCanonicalSimple(fname, StringType(1, (CharType)'.'), StringType(2, (CharType)'.'), (CharType)'/');
+        return this->makePathCanonical(fname); // umba::filename::makeCanonicalSimple(fname, StringType(1, (CharType)'.'), StringType(2, (CharType)'.'), (CharType)'/');
     }
 
-        // MountPointInfo mntInfo;
-        // mntInfo.name   = mntPointName;
-        // mntInfo.target = prepareMountTarget(mntPointTarget);
-        // mntInfo.flags  = flags;
 
     //! Возвращает путь
     template<typename StringType>

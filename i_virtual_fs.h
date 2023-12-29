@@ -96,6 +96,11 @@ struct IVirtualFs
     virtual ErrorCode virtualizeRealPath( const std::string  &realPath, std::string  &vPath) const = 0;
     virtual ErrorCode virtualizeRealPath( const std::wstring &realPath, std::wstring &vPath) const = 0;
 
+    virtual std::string  makePathCanonical(const std::string &p) const = 0;
+    virtual std::wstring makePathCanonical(const std::wstring &p) const = 0;
+
+    virtual std::string  makeNativePathCanonical(const std::string &p) const = 0;
+    virtual std::wstring makeNativePathCanonical(const std::wstring &p) const = 0;
 
     // Предыдущие удаляются. Это надо делать один раз при создании объекта, и при подключении/отключении съёмных носителей
     // Сами объекты IFileSystem/IVirtualFs не следят за событиями подключения/отключения съёмных носителей
