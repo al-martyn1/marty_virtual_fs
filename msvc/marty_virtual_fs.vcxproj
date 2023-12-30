@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{6BEA4745-F86F-4315-8023-2A0C2F549E3C}</ProjectGuid>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|Win32">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <PropertyGroup>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(UMBA_INC_DIRS)</IncludePath>
+  </PropertyGroup>
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ItemGroup>
+    <ClInclude Include="..\app_paths_base_impl.h" />
+    <ClInclude Include="..\app_paths_impl.h" />
+    <ClInclude Include="..\defs.h" />
+    <ClInclude Include="..\filedata_encoder_impl.h" />
+    <ClInclude Include="..\filename_encoder_impl.h" />
+    <ClInclude Include="..\filesystem_impl.h" />
+    <ClInclude Include="..\i_app_paths.h" />
+    <ClInclude Include="..\i_app_paths_common.h" />
+    <ClInclude Include="..\i_filedata_encoder.h" />
+    <ClInclude Include="..\i_filename_encoder.h" />
+    <ClInclude Include="..\i_filesystem.h" />
+    <ClInclude Include="..\i_virtual_fs.h" />
+    <ClInclude Include="..\text_encoder.h" />
+    <ClInclude Include="..\utils.h" />
+    <ClInclude Include="..\vfs_enums.h" />
+    <ClInclude Include="..\vfs_on_vfs_filesystem_impl.h" />
+    <ClInclude Include="..\vfs_types.h" />
+    <ClInclude Include="..\virtual_fs_impl.h" />
+  </ItemGroup>
+</Project>
