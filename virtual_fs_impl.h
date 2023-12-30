@@ -13,6 +13,8 @@
 #include "filename_encoder_impl.h"
 #include "i_virtual_fs.h"
 
+//
+#include "utils.h"
 
 namespace marty_virtual_fs {
 
