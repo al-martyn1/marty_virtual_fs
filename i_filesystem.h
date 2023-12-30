@@ -93,6 +93,12 @@ struct IFileSystem
     virtual ErrorCode toNativePathName(const std::string  &vfsName, std::string  &nativeName) const = 0;
     virtual ErrorCode toNativePathName(const std::wstring &vfsName, std::wstring &nativeName) const = 0;
 
+    virtual ErrorCode mapVirtualPath( const std::string  &vPath, std::string  &realPath) const = 0;
+    virtual ErrorCode mapVirtualPath( const std::wstring &vPath, std::wstring &realPath) const = 0;
+
+    virtual ErrorCode virtualizeRealPath( const std::string  &realPath, std::string  &vPath) const = 0;
+    virtual ErrorCode virtualizeRealPath( const std::wstring &realPath, std::wstring &vPath) const = 0;
+
     virtual ErrorCode createDirectory(const std::string  &dirPath, bool bForce ) const = 0;
     virtual ErrorCode createDirectory(const std::wstring &dirPath, bool bForce ) const = 0;
 

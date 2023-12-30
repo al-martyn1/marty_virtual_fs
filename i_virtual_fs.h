@@ -39,6 +39,9 @@ struct IVirtualFs
 {
     virtual ~IVirtualFs() {}
 
+    // Возвращает текстовую строку, соответствующую коду ошибки
+    virtual bool getErrorCodeString(ErrorCode e, std::string  &errStr) const = 0; // static
+    virtual bool getErrorCodeString(ErrorCode e, std::wstring &errStr) const = 0; // static
 
     virtual std::string  normalizeFilename(const std::string  &fname) const = 0; // static
     virtual std::wstring normalizeFilename(const std::wstring &fname) const = 0; // static

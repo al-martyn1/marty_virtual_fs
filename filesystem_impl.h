@@ -1139,6 +1139,27 @@ protected:
 
 public:
 
+    virtual ErrorCode mapVirtualPath( const std::string  &vPath, std::string  &realPath) const override
+    {
+        return VirtualFsImpl::mapVirtualPath(vPath, realPath);
+    }
+
+    virtual ErrorCode mapVirtualPath( const std::wstring &vPath, std::wstring &realPath) const override
+    {
+        return VirtualFsImpl::mapVirtualPath(vPath, realPath);
+    }
+
+    virtual ErrorCode virtualizeRealPath( const std::string  &realPath, std::string  &vPath) const override
+    {
+        return VirtualFsImpl::virtualizeRealPath(realPath, vPath);
+    }
+
+    virtual ErrorCode virtualizeRealPath( const std::wstring &realPath, std::wstring &vPath) const override
+    {
+        return VirtualFsImpl::virtualizeRealPath(realPath, vPath);
+    }
+
+
     virtual ErrorCode createDirectory(const std::string  &dirPath, bool bForce ) const override
     {
         return createDirectoryImpl(dirPath, bForce );
@@ -1165,16 +1186,30 @@ public:
 
     virtual bool getErrorCodeString(ErrorCode e, std::string  &errStr) const override
     {
-        errStr = enum_serialize(e);
-        return !errStr.empty();
+        try
+        {
+            errStr = enum_serialize(e);
+            return !errStr.empty();
+        }
+        catch(...)
+        {
+            return false;
+        }
     }
 
     virtual bool getErrorCodeString(ErrorCode e, std::wstring &errStr) const override
     {
-        std::string str;
-        str = enum_serialize(e);
-        errStr = decodeFilename(str); // Тут на кодировку ваще пофиг, всё равно только латиница
-        return !errStr.empty();
+        try
+        {
+            std::string str;
+            str = enum_serialize(e);
+            errStr = decodeFilename(str); // Тут на кодировку ваще пофиг, всё равно только латиница
+            return !errStr.empty();
+        }
+        catch(...)
+        {
+            return false;
+        }
     }
 
 

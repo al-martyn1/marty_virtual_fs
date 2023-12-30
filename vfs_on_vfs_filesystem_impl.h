@@ -602,6 +602,25 @@ protected:
 
 public:
 
+    virtual ErrorCode mapVirtualPath( const std::string  &vPath, std::string  &realPath) const override
+    {
+        return VirtualFsImpl::mapVirtualPath(vPath, realPath);
+    }
+
+    virtual ErrorCode mapVirtualPath( const std::wstring &vPath, std::wstring &realPath) const override
+    {
+        return VirtualFsImpl::mapVirtualPath(vPath, realPath);
+    }
+
+    virtual ErrorCode virtualizeRealPath( const std::string  &realPath, std::string  &vPath) const override
+    {
+        return VirtualFsImpl::virtualizeRealPath(realPath, vPath);
+    }
+
+    virtual ErrorCode virtualizeRealPath( const std::wstring &realPath, std::wstring &vPath) const override
+    {
+        return VirtualFsImpl::virtualizeRealPath(realPath, vPath);
+    }
 
     // Нормализует виртуальное имя файла, нормализует разделители пути, и схлопывает спец пути типа "."/"..", 
     // чтобы мамкины "хакеры" из скрипта не могли вылезти за пределы песочницы

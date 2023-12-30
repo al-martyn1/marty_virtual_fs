@@ -375,6 +375,35 @@ protected:
 
 public:
 
+    virtual bool getErrorCodeString(ErrorCode e, std::string  &errStr) const override
+    {
+        try
+        {
+            errStr = enum_serialize(e);
+            return !errStr.empty();
+        }
+        catch(...)
+        {
+            return false;
+        }
+    }
+
+    virtual bool getErrorCodeString(ErrorCode e, std::wstring &errStr) const override
+    {
+        try
+        {
+            std::string str;
+            str = enum_serialize(e);
+            errStr = decodeFilename(str); // Тут на кодировку ваще пофиг, всё равно только латиница
+            return !errStr.empty();
+        }
+        catch(...)
+        {
+            return false;
+        }
+    }
+
+
     // Нормализует виртуальное имя файла, нормализует разделители пути, и схлопывает спец пути типа "."/"..", 
     // чтобы мамкины "хакеры" из скрипта не могли вылезти за пределы песочницы
     // Выставляем наружу, чтобы в скрипте можно было проверить, как выглядит путь, который будет реально использоваться
