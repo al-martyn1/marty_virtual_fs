@@ -8,7 +8,7 @@
 #ifndef MARTY_VFS_ARG_USED
 
     //! Подавление варнинга о неиспользованном аргументе
-    #define MARTY_VFS_USED(x)                   (void)(x)
+    #define MARTY_VFS_ARG_USED(x)                   (void)(x)
 
 #endif
 
