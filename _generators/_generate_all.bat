@@ -56,6 +56,5 @@ umba-enum-gen %GEN_OPTS% %HEX2% %TPL_OVERRIDE% ^
 %SORTFLAGS_GEN_FLAGS%                   %UINT32% -E=SortFlags                         -F=%SORTFLAGS_DEF%                ^
 %ENUMERATEFLAGS_GEN_FLAGS%              %UINT32% -E=EnumerateFlags                    -F=%ENUMERATEFLAGS_DEF%           ^
 %FILEMASKFLAGS_GEN_FLAGS%               %UINT32% -E=FileMaskFlags                     -F=%FILEMASKFLAGS_DEF%            ^
-
 ..\vfs_enums.h
 
