@@ -34,7 +34,12 @@ enum class ErrorCode : std::uint32_t
     invalidFormat        = 0x0B,
     unknownFormat        = 0x0C,
     missingFiles         = 0x0D,
-    notImplemented       = 0x0E
+    notImplemented       = 0x0E,
+    convertError         = 0x0F,
+    unknownUnits         = 0x10,
+    invalidArgument      = 0x11,
+    outOfRange           = 0x12,
+    noMemory             = 0x13
 
 }; // enum class ErrorCode : std::uint32_t
 
@@ -48,6 +53,7 @@ MARTY_CPP_ENUM_CLASS_SERIALIZE_BEGIN( ErrorCode, std::map, 1 )
     MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::notFound             , "NotFound"           );
     MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::notExist             , "NotExist"           );
     MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::invalidName          , "InvalidName"        );
+    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::unknownUnits         , "UnknownUnits"       );
     MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::invalidMountTarget   , "InvalidMountTarget" );
     MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::notSupported         , "NotSupported"       );
     MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::notDirectory         , "NotDirectory"       );
@@ -55,6 +61,10 @@ MARTY_CPP_ENUM_CLASS_SERIALIZE_BEGIN( ErrorCode, std::map, 1 )
     MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::invalidFormat        , "InvalidFormat"      );
     MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::unknownFormat        , "UnknownFormat"      );
     MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::notImplemented       , "NotImplemented"     );
+    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::convertError         , "ConvertError"       );
+    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::invalidArgument      , "InvalidArgument"    );
+    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::outOfRange           , "OutOfRange"         );
+    MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::noMemory             , "NoMemory"           );
 MARTY_CPP_ENUM_CLASS_SERIALIZE_END( ErrorCode, std::map, 1 )
 
 MARTY_CPP_ENUM_CLASS_DESERIALIZE_BEGIN( ErrorCode, std::map, 1 )
@@ -68,6 +78,7 @@ MARTY_CPP_ENUM_CLASS_DESERIALIZE_BEGIN( ErrorCode, std::map, 1 )
     MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::notFound             , "notfound"           );
     MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::notExist             , "notexist"           );
     MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::invalidName          , "invalidname"        );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::unknownUnits         , "unknownunits"       );
     MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::invalidMountTarget   , "invalidmounttarget" );
     MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::notSupported         , "notsupported"       );
     MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::notDirectory         , "notdirectory"       );
@@ -75,6 +86,10 @@ MARTY_CPP_ENUM_CLASS_DESERIALIZE_BEGIN( ErrorCode, std::map, 1 )
     MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::invalidFormat        , "invalidformat"      );
     MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::unknownFormat        , "unknownformat"      );
     MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::notImplemented       , "notimplemented"     );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::convertError         , "converterror"       );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::invalidArgument      , "invalidargument"    );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::outOfRange           , "outofrange"         );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( ErrorCode::noMemory             , "nomemory"           );
 MARTY_CPP_ENUM_CLASS_DESERIALIZE_END( ErrorCode, std::map, 1 )
 
 

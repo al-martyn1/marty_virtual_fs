@@ -14,3 +14,8 @@ invalidFormat
 unknownFormat
 missingFiles
 notImplemented
+convertError
+unknownUnits
+invalidArgument
+outOfRange
+noMemory
