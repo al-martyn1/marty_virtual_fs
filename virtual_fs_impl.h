@@ -580,6 +580,12 @@ public:
 
     // Предыдущие удаляются. Это надо делать один раз при создании объекта, и при подключении/отключении съёмных носителей
     // Сами объекты IFileSystem/IVirtualFs не следят за событиями подключения/отключения съёмных носителей
+
+    // https://learn.microsoft.com/en-us/windows/win32/devio/dbt-devicequeryremove
+    // WM_DEVICECHANGE - https://learn.microsoft.com/en-us/windows/win32/devio/wm-devicechange
+
+    // Редирект STDOUT - https://stackoverflow.com/questions/54094127/redirecting-stdout-in-win32-does-not-redirect-stdout
+
     virtual ErrorCode createMachineFilesystemMountPoints() override
     {
         #if defined(WIN32) || defined(_WIN32)
