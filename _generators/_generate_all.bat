@@ -9,7 +9,7 @@
 @set HEX8=--hex-width=8
 
 @rem set EXTRA=--enum-flags=extra
-@same but more detailed
+@rem same but more detailed
 @set FLAGENUM_EXTRA=--enum-flags=serialize-set,deserialize-set
 
 @set FLAGS=--enum-flags=flags

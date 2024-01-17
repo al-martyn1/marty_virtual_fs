@@ -43,6 +43,8 @@ enum class ErrorCode : std::uint32_t
 
 }; // enum class ErrorCode : std::uint32_t
 
+MARTY_CPP_MAKE_ENUM_IS_FLAGS_FOR_NON_FLAGS_ENUM(ErrorCode)
+
 MARTY_CPP_ENUM_CLASS_SERIALIZE_BEGIN( ErrorCode, std::map, 1 )
     MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::accessDenied         , "AccessDenied"       );
     MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( ErrorCode::invalid              , "Invalid"            );
@@ -101,6 +103,8 @@ enum class Endianness : std::uint32_t
     bigEndian      = 0x01
 
 }; // enum class Endianness : std::uint32_t
+
+MARTY_CPP_MAKE_ENUM_IS_FLAGS_FOR_NON_FLAGS_ENUM(Endianness)
 
 MARTY_CPP_ENUM_CLASS_SERIALIZE_BEGIN( Endianness, std::map, 1 )
     MARTY_CPP_ENUM_CLASS_SERIALIZE_ITEM( Endianness::invalid        , "Invalid"      );
