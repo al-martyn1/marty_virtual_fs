@@ -46,7 +46,7 @@ struct IVirtualFs
     virtual std::string  normalizeFilename(const std::string  &fname) const = 0; // static
     virtual std::wstring normalizeFilename(const std::wstring &fname) const = 0; // static
 
-    virtual void setVfsGlobalReadonly(bool bReadonly) = 0;
+    virtual bool setVfsGlobalReadonly(bool bReadonly) = 0;
     virtual bool getVfsGlobalReadonly() const = 0;
 
     // "Статические" методы для извлечения частей пути

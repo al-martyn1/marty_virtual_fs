@@ -505,9 +505,10 @@ public:
 
 
     //bool        m_readOnly = false;
-    virtual void setVfsGlobalReadonly(bool bReadonly) override
+    virtual bool setVfsGlobalReadonly(bool bReadonly) override
     {
-        m_readOnly = bReadonly;
+        std::swap(m_readOnly, bReadonly);
+        return bReadonly;
     }
 
     virtual bool getVfsGlobalReadonly() const override

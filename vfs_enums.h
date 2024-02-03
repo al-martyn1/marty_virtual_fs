@@ -97,10 +97,11 @@ MARTY_CPP_ENUM_CLASS_DESERIALIZE_END( ErrorCode, std::map, 1 )
 
 enum class Endianness : std::uint32_t
 {
-    invalid        = (std::uint32_t)(-1),
-    unknown        = (std::uint32_t)(-1),
-    littleEndian   = 0x00,
-    bigEndian      = 0x01
+    invalid            = (std::uint32_t)(-1),
+    unknown            = (std::uint32_t)(-1),
+    littleEndian       = 0x00,
+    bigEndian          = 0x01,
+    networkByteOrder   = 0x01
 
 }; // enum class Endianness : std::uint32_t
 
@@ -113,10 +114,11 @@ MARTY_CPP_ENUM_CLASS_SERIALIZE_BEGIN( Endianness, std::map, 1 )
 MARTY_CPP_ENUM_CLASS_SERIALIZE_END( Endianness, std::map, 1 )
 
 MARTY_CPP_ENUM_CLASS_DESERIALIZE_BEGIN( Endianness, std::map, 1 )
-    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( Endianness::invalid        , "invalid"      );
-    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( Endianness::invalid        , "unknown"      );
-    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( Endianness::bigEndian      , "bigendian"    );
-    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( Endianness::littleEndian   , "littleendian" );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( Endianness::invalid        , "invalid"          );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( Endianness::invalid        , "unknown"          );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( Endianness::bigEndian      , "bigendian"        );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( Endianness::bigEndian      , "networkbyteorder" );
+    MARTY_CPP_ENUM_CLASS_DESERIALIZE_ITEM( Endianness::littleEndian   , "littleendian"     );
 MARTY_CPP_ENUM_CLASS_DESERIALIZE_END( Endianness, std::map, 1 )
 
 

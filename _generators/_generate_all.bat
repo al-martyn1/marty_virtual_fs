@@ -27,7 +27,7 @@
 @set SERIALIZE_PASCAL=--serialize-style=PascalStyle 
 
 @set ENDIANNESS_GEN_FLAGS=--enum-flags=0 --enum-flags=type-decl,serialize,deserialize,lowercase,enum-class,fmt-hex %VALUES_CAMEL% %SERIALIZE_PASCAL%
-@set ENDIANNESS_DEF=invalid,unknown=-1;littleEndian=0;bigEndian=1
+@set ENDIANNESS_DEF=invalid,unknown=-1;littleEndian=0;bigEndian,networkByteOrder=1
 
 @set FILETYPEFLAGS_GEN_FLAGS=        --enum-flags=0 --enum-flags=type-decl,serialize,deserialize,lowercase,enum-class,flags,fmt-hex %VALUES_CAMEL% %SERIALIZE_PASCAL% %FLAGENUM_EXTRA%
 @set FILETYPEFLAGS_DEF=invalid=-1;normalFile=0;directory=1;deviceFile=2
